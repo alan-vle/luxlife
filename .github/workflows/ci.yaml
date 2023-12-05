@@ -13,7 +13,7 @@ concurrency:
 
 env:
   DOCKER_COMP: docker compose -f compose.dev.yaml
-  PHP_CONT: ${{ env.DOCKER_COMP }} exec -T php
+  PHP_CONT: docker compose -f compose.dev.yaml exec -T php
 
 jobs:
   tests:
