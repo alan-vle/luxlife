@@ -1,0 +1,72 @@
+name: luxlife
+services:
+  # Nginx container | All environment
+  nginx:
+    container_name: ${COMPOSE_PROJECT_NAME}_dev_nginx
+    build:
+      context: .
+      dockerfile: nginx/dev/Dockerfile
+    ports:
+      - "8080:80"
+    networks:
+      - symfony
+    volumes:
+      - ./:/srv/${COMPOSE_PROJECT_NAME}/
+    restart: unless-stopped
+
+  # Php container | All environment
+  php:
+    container_name: ${COMPOSE_PROJECT_NAME}_dev_php
+    build:
+      context: .
+      dockerfile: php/dev/Dockerfile
+    networks:
+      - symfony
+    volumes:
+      - ./:/srv/${COMPOSE_PROJECT_NAME}/
+    restart: unless-stopped
+
+  # PostgreSQL database container | Only in dev environment
+  database:
+    image: postgres:${POSTGRES_VERSION:-15}-alpine
+    container_name: ${COMPOSE_PROJECT_NAME}_dev_postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-luxlife}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-azaz5412sa5421saz}
+      POSTGRES_USER: ${POSTGRES_USER:-ad_luxlife}
+    volumes:
+      - db-data:/var/lib/postgresql@15/data:rw
+    ports:
+      - "5432:5432"
+    depends_on:
+      - nginx
+      - php
+    networks:
+      - symfony
+    restart: unless-stopped
+
+  # Pgadmin container | Only in dev environment
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: ${COMPOSE_PROJECT_NAME}_dev_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    depends_on:
+      - database
+    networks:
+      - symfony
+    restart: unless-stopped
+
+networks:
+  symfony:
+    driver: bridge
+
+volumes:
+  db-data:
+  pgadmin:
