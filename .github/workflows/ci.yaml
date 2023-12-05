@@ -34,6 +34,10 @@ jobs:
             compose.override.yaml
       - name: Start services
         run: ${{ env.DOCKER_COMP }} up --build --wait
+      - name: Ls current folder
+        run: ls -la
+      - name: LS in PHP container
+        run: docker compose -f compose.dev.yaml exec -T php ls -la
       - name: Install dependencies for composer # (ToDo) Remove this (because it is normally executed during "docker compose up")
         run: docker compose -f compose.dev.yaml exec -T php composer install --no-interaction --no-plugins --no-scripts --no-dev --prefer-dist
       - name: Run PHPStan
