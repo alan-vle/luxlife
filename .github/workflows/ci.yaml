@@ -39,9 +39,9 @@ jobs:
       - name: LS in PHP container
         run: docker compose -f compose.dev.yaml exec -T php ls -la
       - name: Install dependencies for composer # (ToDo) Remove this (because it is normally executed during "docker compose up")
-        run: docker compose -f compose.dev.yaml exec -T php composer install --no-interaction --no-plugins --no-scripts --no-dev --prefer-dist
+        run: docker compose -f compose.dev.yaml exec -T php composer install --no-interaction --prefer-dist
       - name: Run PHPStan
-        run: docker compose -f compose.dev.yaml exec -T php php vendor/bin/phpstan analyse --level max
+        run: docker compose -f compose.dev.yaml exec -T php vendor/bin/phpstan analyse --level max
       - name: Run PHPCs-fixer
         run: ${{ env.PHP_CONT }} vendor/bin/php-cs-fixer fix
       - name: Create test database
