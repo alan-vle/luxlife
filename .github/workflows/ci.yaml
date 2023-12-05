@@ -13,7 +13,7 @@ concurrency:
 
 env:
   DOCKER_COMP: docker compose -f compose.dev.yaml
-  PHP_CONT: php
+  PHP_CONT: ${{ env.DOCKER_COMP }} exec -T php
 
 jobs:
   tests:
@@ -41,21 +41,21 @@ jobs:
       - name: Install dependencies for composer # (ToDo) Remove this (because it is normally executed during "docker compose up")
         run: docker compose -f compose.dev.yaml exec -T php composer install --no-interaction --no-plugins --no-scripts --no-dev --prefer-dist
       - name: Run PHPStan
-        run: ${{ env.DOCKER_COMP }} exec -T ${{ env.PHP_CONT }} vendor/bin/phpstan analyse --level max
+        run: docker compose -f compose.dev.yaml exec -T php vendor/bin/phpstan analyse --level max
       - name: Run PHPCs-fixer
-        run: ${{ env.DOCKER_COMP }} exec -T ${{ env.PHP_CONT }} vendor/bin/php-cs-fixer fix
+        run: ${{ env.PHP_CONT }} vendor/bin/php-cs-fixer fix
       - name: Create test database
         if: false # Remove this line if Doctrine ORM is installed
-        run: ${{ env.DOCKER_COMP }} exec -T ${{ env.PHP_CONT }} bin/console -e test doctrine:database:create
+        run: ${{ env.PHP_CONT }} bin/console -e test doctrine:database:create
       - name: Run migrations
         if: false # Remove this line if Doctrine Migrations is installed
-        run: ${{ env.DOCKER_COMP }} exec -T ${{ env.PHP_CONT }} bin/console -e test doctrine:migrations:migrate --no-interaction
+        run: ${{ env.PHP_CONT }} bin/console -e test doctrine:migrations:migrate --no-interaction
       - name: Run PHPUnit
         if: false # Remove this line if PHPUnit is installed
-        run: ${{ env.DOCKER_COMP }} exec -T ${{ env.PHP_CONT }} bin/phpunit
+        run: ${{ env.PHP_CONT }} bin/phpunit
       - name: Doctrine Schema Validator
         if: false # Remove this line if Doctrine ORM is installed
-        run: ${{ env.DOCKER_COMP }} exec -T ${{ env.PHP_CONT }} bin/console -e test doctrine:schema:validate
+        run: ${{ env.PHP_CONT }} bin/console -e test doctrine:schema:validate
   lint:
     name: Docker Lint
     runs-on: ubuntu-latest
