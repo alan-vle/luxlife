@@ -1,0 +1,13 @@
+FROM nginx:alpine
+ENV TZ=Europe/Paris
+ADD nginx/ssl/fullchain.pem /etc/letsencrypt/live/2test2venue/fullchain.pem
+ADD nginx/ssl/privkey.pem /etc/letsencrypt/live/2test2venue/privkey.pem
+ADD nginx/test/2test2venue.pestavenue.com.conf /etc/nginx/conf.d
+
+#COPY ./ /var/www/pest-avenue/
+
+#RUN chown -R nginx:nginx /var/www/pest-avenue/
+#RUN chmod -R 755 /var/www/pest-avenue/
+
+
+RUN mkdir -p /var/cache/nginx/client_temp && chown nginx:nginx /var/cache/nginx/client_temp

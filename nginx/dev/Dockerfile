@@ -1,0 +1,3 @@
+FROM nginx:alpine
+ENV TZ=Europe/Paris
+COPY nginx/default.conf /etc/nginx/conf.d
