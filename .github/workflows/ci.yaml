@@ -22,38 +22,40 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Build Docker images
-        uses: docker/bake-action@v4
-        with:
-          pull: true
-          load: true
-          files: |
-            compose.dev.yaml
-            compose.override.yaml
-      - name: Start services
-        run: ${{ env.DOCKER_COMP }} up --build --wait
-      - name: Delete the vendor folder if it exists
-        run: sudo rm -R vendor/
-      - name: Install dependencies for composer # (ToDo) Remove this (because it is normally executed during "docker compose up")
-        run: ${{ env.PHP_CONT }} composer install --no-interaction --prefer-dist --no-dev --no-plugins
-      - name: Run PHPStan
-        run: ${{ env.PHP_CONT }} vendor/bin/phpstan analyse --level max
-      - name: Run PHPCs-fixer
-        run: ${{ env.PHP_CONT }} vendor/bin/php-cs-fixer fix
-      - name: Create test database
-        if: false # Remove this line if Doctrine ORM is installed
-        run: ${{ env.PHP_CONT }} bin/console -e test doctrine:database:create
-      - name: Run migrations
-        if: false # Remove this line if Doctrine Migrations is installed
-        run: ${{ env.PHP_CONT }} bin/console -e test doctrine:migrations:migrate --no-interaction
-      - name: Run PHPUnit
-        if: false # Remove this line if PHPUnit is installed
-        run: ${{ env.PHP_CONT }} bin/phpunit
-      - name: Doctrine Schema Validator
-        if: false # Remove this line if Doctrine ORM is installed
-        run: ${{ env.PHP_CONT }} bin/console -e test doctrine:schema:validate
+      - name: List files of main directory
+        run: ls -la
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v3
+      # - name: Build Docker images
+      #   uses: docker/bake-action@v4
+      #   with:
+      #     pull: true
+      #     load: true
+      #     files: |
+      #       compose.dev.yaml
+      #       compose.override.yaml
+      # - name: Start services
+      #   run: ${{ env.DOCKER_COMP }} up --build --wait
+      # - name: Delete the vendor folder if it exists
+      #   run: sudo rm -R vendor/
+      # - name: Install dependencies for composer # (ToDo) Remove this (because it is normally executed during "docker compose up")
+      #   run: ${{ env.PHP_CONT }} composer install --no-interaction --prefer-dist --no-dev --no-plugins
+      # - name: Run PHPStan
+      #   run: ${{ env.PHP_CONT }} vendor/bin/phpstan analyse --level max
+      # - name: Run PHPCs-fixer
+      #   run: ${{ env.PHP_CONT }} vendor/bin/php-cs-fixer fix
+      # - name: Create test database
+      #   if: false # Remove this line if Doctrine ORM is installed
+      #   run: ${{ env.PHP_CONT }} bin/console -e test doctrine:database:create
+      # - name: Run migrations
+      #   if: false # Remove this line if Doctrine Migrations is installed
+      #   run: ${{ env.PHP_CONT }} bin/console -e test doctrine:migrations:migrate --no-interaction
+      # - name: Run PHPUnit
+      #   if: false # Remove this line if PHPUnit is installed
+      #   run: ${{ env.PHP_CONT }} bin/phpunit
+      # - name: Doctrine Schema Validator
+      #   if: false # Remove this line if Doctrine ORM is installed
+      #   run: ${{ env.PHP_CONT }} bin/console -e test doctrine:schema:validate
   lint:
     name: Docker Lint
     runs-on: ubuntu-latest
