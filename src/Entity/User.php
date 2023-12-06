@@ -55,7 +55,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToOne(inversedBy: 'users')]
     private ?Agency $agency = null;
 
-
     public function getId(): ?int
     {
         return $this->id;
