@@ -35,7 +35,7 @@ jobs:
       - name: List files before up
         run: ls -la
       - name: Start services
-        run: ${{ env.DOCKER_COMP }} up --build --wait
+        run: ${{ env.DOCKER_COMP }} up --no-build --wait
       - name: Docker status
         run: docker ps
       - name: List files inside php container
