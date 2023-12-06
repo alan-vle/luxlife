@@ -3,7 +3,7 @@ set -e
 
 if [ ! -d vendor ]; then
 	echo "Install composer..."
-    composer install --no-interaction --prefer-dist
+    composer install
 fi
 
 chmod -R 777 ./
