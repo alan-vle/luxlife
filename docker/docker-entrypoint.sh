@@ -7,4 +7,3 @@ if [ ! -d vendor ]; then
 fi
 
 php-fpm
-exec docker-php-entrypoint "$@"
