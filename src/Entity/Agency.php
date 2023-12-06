@@ -32,7 +32,6 @@ class Agency
     #[ORM\Column(type: Types::TIME_MUTABLE)]
     private ?\DateTimeInterface $closingHours = null;
 
-
     /**
      * @var ArrayCollection<int, User> $users
      */
