@@ -22,20 +22,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: List files of main directory
-        run: ls -la
       # - name: Set up Docker Buildx
       #   uses: docker/setup-buildx-action@v3
-      # - name: Build Docker images
-      #   uses: docker/bake-action@v4
-      #   with:
-      #     pull: true
-      #     load: true
-      #     files: |
-      #       compose.dev.yaml
-      #       compose.override.yaml
-      # - name: Start services
-      #   run: ${{ env.DOCKER_COMP }} up --build --wait
+      - name: Build Docker images
+        uses: docker/bake-action@v4
+        with:
+          pull: true
+          load: true
+          files: |
+            compose.dev.yaml
+            compose.override.yaml
+      - name: Start services
+        run: ${{ env.DOCKER_COMP }} up --build --wait
+      - name: List files of main directory
+        run: ls -la
       # - name: Delete the vendor folder if it exists
       #   run: sudo rm -R vendor/
       # - name: Install dependencies for composer # (ToDo) Remove this (because it is normally executed during "docker compose up")
