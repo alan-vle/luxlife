@@ -32,14 +32,15 @@ class Agency
     #[ORM\Column(type: Types::TIME_MUTABLE)]
     private ?\DateTimeInterface $closingHours = null;
 
-    #[ORM\Column]
-    private ?int $status = null;
 
     /**
      * @var ArrayCollection<int, User> $users
      */
     #[ORM\OneToMany(mappedBy: 'agency', targetEntity: User::class)]
     private Collection $users;
+
+    #[ORM\Column]
+    private ?bool $status = null;
 
     public function __construct()
     {
@@ -99,18 +100,6 @@ class Agency
         return $this;
     }
 
-    public function getStatus(): ?int
-    {
-        return $this->status;
-    }
-
-    public function setStatus(int $status): static
-    {
-        $this->status = $status;
-
-        return $this;
-    }
-
     /**
      * @return Collection<int, User>
      */
@@ -137,6 +126,18 @@ class Agency
                 $user->setAgency(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isStatus(): ?bool
+    {
+        return $this->status;
+    }
+
+    public function setStatus(bool $status): static
+    {
+        $this->status = $status;
 
         return $this;
     }

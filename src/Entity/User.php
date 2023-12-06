@@ -49,8 +49,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private array $roles = [];
 
+    #[ORM\Column]
+    private ?bool $active = false;
+
     #[ORM\ManyToOne(inversedBy: 'users')]
     private ?Agency $agency = null;
+
 
     public function getId(): ?int
     {
@@ -183,6 +187,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setAgency(?Agency $agency): static
     {
         $this->agency = $agency;
+
+        return $this;
+    }
+
+    public function isActive(): ?bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): static
+    {
+        $this->active = $active;
 
         return $this;
     }
