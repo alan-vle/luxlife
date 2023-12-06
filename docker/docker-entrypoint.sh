@@ -3,9 +3,11 @@ set -e
 
 if [ ! -d vendor ]; then
 	echo "Install composer..."
-    composer install --no-interaction --no-plugins --no-scripts --no-dev --prefer-dist
+    composer install --no-interaction --prefer-dist
 fi
 
 chmod -R 777 ./
+
+composer dump-autoload
 
 php-fpm
