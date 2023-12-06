@@ -40,8 +40,12 @@ jobs:
         run: docker ps
       - name: List files inside php container
         run:  ${{ env.PHP_CONT }} ls -la
+      # - name: Change owner to vendor folder
+      #   run: chown -R 1001:127 vendor/
       - name: List files inside vendor folder in php container
-        run:  ${{ env.PHP_CONT }} ls -la /vendor
+        run:  ${{ env.PHP_CONT }} ls -la vendor/
+      - name: List files inside vendor folder in php container
+        run:  ${{ env.PHP_CONT }} ls -la vendor/bin
       - name: Run PHPStan
         run: ${{ env.PHP_CONT }} vendor/bin/phpstan analyse --level max
       - name: Run PHPCs-fixer
