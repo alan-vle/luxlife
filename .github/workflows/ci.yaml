@@ -34,8 +34,6 @@ jobs:
             compose.override.yaml
       - name: Start services
         run: ${{ env.DOCKER_COMP }} up --build --wait
-      - name: Delete vendor folder
-        run: rm -rf vendor/
       - name: Install php dependencies
         run: composer install --prefer-dist
       - name: Run PHPStan
