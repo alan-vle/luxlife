@@ -35,7 +35,7 @@ jobs:
       - name: Start services
         run: ${{ env.DOCKER_COMP }} up --build --wait
       - name: Install php dependencies
-        run: composer install --prefer-dist
+        run: composer update
       - name: Run PHPStan
         run: ${{ env.PHP_CONT }} vendor/bin/phpstan analyse --level max
       - name: Run PHPCs-fixer
