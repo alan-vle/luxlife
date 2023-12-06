@@ -37,6 +37,7 @@ jobs:
       - name: Delete vendor folder
         run: rm -rf vendor/
       - name: Install php dependencies
+        run: composer install --prefer-dist
       - name: Run PHPStan
         run: ${{ env.PHP_CONT }} vendor/bin/phpstan analyse --level max
       - name: Run PHPCs-fixer
