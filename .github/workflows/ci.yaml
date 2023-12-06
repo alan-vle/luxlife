@@ -34,6 +34,8 @@ jobs:
             compose.override.yaml
       - name: Start services
         run: ${{ env.DOCKER_COMP }} up --build --wait
+      - name: Delete the vendor folder if it exists
+        run: sudo rm -R vendor/
       - name: Install dependencies for composer # (ToDo) Remove this (because it is normally executed during "docker compose up")
         run: ${{ env.PHP_CONT }} composer install --no-interaction --prefer-dist --no-dev --no-plugins
       - name: Run PHPStan
