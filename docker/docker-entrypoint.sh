@@ -2,12 +2,9 @@
 set -e
 
 if [ ! -d vendor ]; then
-	echo "Install composer..."
-    composer install
+    echo "Install composer..."
+    composer install --prefer-dist --no-progress --no-interaction
 fi
 
-chmod -R 777 ./
-
-composer dump-autoload
-
 php-fpm
+exec docker-php-entrypoint "$@"
