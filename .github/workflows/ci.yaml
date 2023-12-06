@@ -32,8 +32,16 @@ jobs:
           files: |
             compose.dev.yaml
             compose.override.yaml
+      - name: List files before up
+        run: ls -la
       - name: Start services
         run: ${{ env.DOCKER_COMP }} up --build --wait
+      - name: Docker status
+        run: docker ps
+      - name: List files inside php container
+        run:  ${{ env.PHP_CONT }} ls -la
+      - name: List files inside vendor folder in php container
+        run:  ${{ env.PHP_CONT }} ls -la /vendor
       - name: Run PHPStan
         run: ${{ env.PHP_CONT }} vendor/bin/phpstan analyse --level max
       - name: Run PHPCs-fixer
