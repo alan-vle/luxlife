@@ -34,8 +34,8 @@ jobs:
             compose.override.yaml
       - name: Start services
         run: ${{ env.DOCKER_COMP }} up --build --wait
-      - name: Install dependencies for composer # (ToDo) Remove this (because it is normally executed during "docker compose up")
-        run: ${{ env.PHP_CONT }} composer install --no-interaction --prefer-dist --no-plugins
+      - name: Sleep (25 seconds at the moment) on the ubuntu OS (inside workflow) to allow files to be generated during the build process
+        run: sleep 25
       - name: Run PHPStan
         run: ${{ env.PHP_CONT }} vendor/bin/phpstan analyse --level max
       - name: Run PHPCs-fixer
