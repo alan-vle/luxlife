@@ -27,6 +27,10 @@ class Delivery
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $deliveryDate = null;
 
+    #[ORM\OneToOne(inversedBy: 'delivery', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Rental $rental = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -64,6 +68,18 @@ class Delivery
     public function setDeliveryDate(\DateTimeInterface $deliveryDate): static
     {
         $this->deliveryDate = $deliveryDate;
+
+        return $this;
+    }
+
+    public function getRental(): ?Rental
+    {
+        return $this->rental;
+    }
+
+    public function setRental(Rental $rental): static
+    {
+        $this->rental = $rental;
 
         return $this;
     }
