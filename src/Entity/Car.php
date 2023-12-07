@@ -36,6 +36,9 @@ class Car
     #[ORM\JoinColumn(nullable: false)]
     private ?Manufacturer $manufacturer = null;
 
+    /**
+     * @var ArrayCollection<int, ProblemCar> $problemCars
+     */
     #[ORM\OneToMany(mappedBy: 'car', targetEntity: ProblemCar::class, orphanRemoval: true)]
     private Collection $problemCars;
 
