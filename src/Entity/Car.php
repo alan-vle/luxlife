@@ -5,6 +5,8 @@ namespace App\Entity;
 use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
 use App\Repository\CarRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CarRepository::class)]
@@ -33,6 +35,14 @@ class Car
     #[ORM\ManyToOne(inversedBy: 'cars')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Manufacturer $manufacturer = null;
+
+    #[ORM\OneToMany(mappedBy: 'car', targetEntity: ProblemCar::class, orphanRemoval: true)]
+    private Collection $problemCars;
+
+    public function __construct()
+    {
+        $this->problemCars = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -95,6 +105,36 @@ class Car
     public function setManufacturer(?Manufacturer $manufacturer): static
     {
         $this->manufacturer = $manufacturer;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ProblemCar>
+     */
+    public function getProblemCars(): Collection
+    {
+        return $this->problemCars;
+    }
+
+    public function addProblemCar(ProblemCar $problemCar): static
+    {
+        if (!$this->problemCars->contains($problemCar)) {
+            $this->problemCars->add($problemCar);
+            $problemCar->setCar($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProblemCar(ProblemCar $problemCar): static
+    {
+        if ($this->problemCars->removeElement($problemCar)) {
+            // set the owning side to null (unless already changed)
+            if ($problemCar->getCar() === $this) {
+                $problemCar->setCar(null);
+            }
+        }
 
         return $this;
     }

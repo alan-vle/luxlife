@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="91d5794e-7f5b-4dce-82cf-3183dad420b8" name="Changes" comment="" />
+    <list default="true" id="7dcefc42-53d0-49ed-a533-b48bbabc8f4e" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/src/Entity/Car.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Car.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/ProblemCar.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/ProblemCar.php" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
