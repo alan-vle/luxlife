@@ -18,6 +18,9 @@ class Manufacturer
     #[ORM\Column(length: 16)]
     private ?string $name = null;
 
+    /**
+     * @var ArrayCollection<int, Car> $cars
+     */
     #[ORM\OneToMany(mappedBy: 'manufacturer', targetEntity: Car::class, orphanRemoval: true)]
     private Collection $cars;
 
