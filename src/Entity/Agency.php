@@ -41,6 +41,9 @@ class Agency
     #[ORM\Column]
     private ?bool $status = null;
 
+    /**
+     * @var ArrayCollection<int, Car> $cars
+     */
     #[ORM\OneToMany(mappedBy: 'agency', targetEntity: Car::class, orphanRemoval: true)]
     private Collection $cars;
 
