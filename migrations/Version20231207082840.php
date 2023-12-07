@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20231207081324 extends AbstractMigration
+final class Version20231207082840 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -27,8 +27,9 @@ final class Version20231207081324 extends AbstractMigration
         $this->addSql('CREATE TABLE agency (id INT NOT NULL, address VARCHAR(140) NOT NULL, email VARCHAR(90) NOT NULL, opening_hours TIME(0) WITHOUT TIME ZONE NOT NULL, closing_hours TIME(0) WITHOUT TIME ZONE NOT NULL, status BOOLEAN NOT NULL, uuid UUID NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, updated_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('COMMENT ON COLUMN agency.uuid IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN agency.created_at IS \'(DC2Type:datetime_immutable)\'');
-        $this->addSql('CREATE TABLE car (id INT NOT NULL, agency_id INT NOT NULL, model VARCHAR(50) NOT NULL, kilometers INT NOT NULL, status BOOLEAN NOT NULL, uuid UUID NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, updated_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE car (id INT NOT NULL, agency_id INT NOT NULL, manufacturer_id INT NOT NULL, model VARCHAR(50) NOT NULL, kilometers INT NOT NULL, status BOOLEAN NOT NULL, uuid UUID NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, updated_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_773DE69DCDEADB2A ON car (agency_id)');
+        $this->addSql('CREATE INDEX IDX_773DE69DA23B42D ON car (manufacturer_id)');
         $this->addSql('COMMENT ON COLUMN car.uuid IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN car.created_at IS \'(DC2Type:datetime_immutable)\'');
         $this->addSql('CREATE TABLE manufacturer (id INT NOT NULL, name VARCHAR(16) NOT NULL, PRIMARY KEY(id))');
@@ -38,6 +39,7 @@ final class Version20231207081324 extends AbstractMigration
         $this->addSql('COMMENT ON COLUMN "user".uuid IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN "user".created_at IS \'(DC2Type:datetime_immutable)\'');
         $this->addSql('ALTER TABLE car ADD CONSTRAINT FK_773DE69DCDEADB2A FOREIGN KEY (agency_id) REFERENCES agency (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE car ADD CONSTRAINT FK_773DE69DA23B42D FOREIGN KEY (manufacturer_id) REFERENCES manufacturer (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE "user" ADD CONSTRAINT FK_8D93D649CDEADB2A FOREIGN KEY (agency_id) REFERENCES agency (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
     }
 
@@ -50,6 +52,7 @@ final class Version20231207081324 extends AbstractMigration
         $this->addSql('DROP SEQUENCE manufacturer_id_seq CASCADE');
         $this->addSql('DROP SEQUENCE "user_id_seq" CASCADE');
         $this->addSql('ALTER TABLE car DROP CONSTRAINT FK_773DE69DCDEADB2A');
+        $this->addSql('ALTER TABLE car DROP CONSTRAINT FK_773DE69DA23B42D');
         $this->addSql('ALTER TABLE "user" DROP CONSTRAINT FK_8D93D649CDEADB2A');
         $this->addSql('DROP TABLE agency');
         $this->addSql('DROP TABLE car');
