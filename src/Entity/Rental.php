@@ -37,6 +37,13 @@ class Rental
     #[ORM\Column]
     private ?int $status = null;
 
+    #[ORM\ManyToOne(inversedBy: 'myRentals')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $customer = null;
+
+    #[ORM\ManyToOne(inversedBy: 'myManagedRentals')]
+    private ?User $employee = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -110,6 +117,30 @@ class Rental
     public function setStatus(int $status): static
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getCustomer(): ?User
+    {
+        return $this->customer;
+    }
+
+    public function setCustomer(?User $customer): static
+    {
+        $this->customer = $customer;
+
+        return $this;
+    }
+
+    public function getEmployee(): ?User
+    {
+        return $this->employee;
+    }
+
+    public function setEmployee(?User $employee): static
+    {
+        $this->employee = $employee;
 
         return $this;
     }
