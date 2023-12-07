@@ -6,7 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="2b9576d5-eda4-46f2-8fc3-184b2f6341ca" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Rental.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Rental.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/migrations/Version20231207141910.php" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
