@@ -42,9 +42,16 @@ class Car
     #[ORM\OneToMany(mappedBy: 'car', targetEntity: ProblemCar::class, orphanRemoval: true)]
     private Collection $problemCars;
 
+    /**
+     * @var ArrayCollection<int, Rental> $rentals
+     */
+    #[ORM\OneToMany(mappedBy: 'car', targetEntity: Rental::class)]
+    private Collection $rentals;
+
     public function __construct()
     {
         $this->problemCars = new ArrayCollection();
+        $this->rentals = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -136,6 +143,36 @@ class Car
             // set the owning side to null (unless already changed)
             if ($problemCar->getCar() === $this) {
                 $problemCar->setCar(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Rental>
+     */
+    public function getRentals(): Collection
+    {
+        return $this->rentals;
+    }
+
+    public function addRental(Rental $rental): static
+    {
+        if (!$this->rentals->contains($rental)) {
+            $this->rentals->add($rental);
+            $rental->setCar($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRental(Rental $rental): static
+    {
+        if ($this->rentals->removeElement($rental)) {
+            // set the owning side to null (unless already changed)
+            if ($rental->getCar() === $this) {
+                $rental->setCar(null);
             }
         }
 
