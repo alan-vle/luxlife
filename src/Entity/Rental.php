@@ -56,7 +56,7 @@ class Rental
         return $this->id;
     }
 
-    public function isContract(): ?bool
+    public function getContract(): ?bool
     {
         return $this->contract;
     }
