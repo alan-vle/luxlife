@@ -5,6 +5,8 @@ namespace App\Entity;
 use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -54,6 +56,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\ManyToOne(inversedBy: 'users')]
     private ?Agency $agency = null;
+
+    /**
+     * @var ArrayCollection<int, Rental> $myRentals
+     */
+    #[ORM\OneToMany(mappedBy: 'customer', targetEntity: Rental::class)]
+    private Collection $myRentals;
+
+    /**
+     * @var ArrayCollection<int, Rental> $myManagedRentals
+     */
+    #[ORM\OneToMany(mappedBy: 'employee', targetEntity: Rental::class)]
+    private Collection $myManagedRentals;
+
+    public function __construct()
+    {
+        $this->myRentals = new ArrayCollection();
+        $this->myManagedRentals = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -198,6 +218,66 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setActive(bool $active): static
     {
         $this->active = $active;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Rental>
+     */
+    public function getMyRentals(): Collection
+    {
+        return $this->myRentals;
+    }
+
+    public function addMyRental(Rental $myRental): static
+    {
+        if (!$this->myRentals->contains($myRental)) {
+            $this->myRentals->add($myRental);
+            $myRental->setCustomer($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMyRental(Rental $myRental): static
+    {
+        if ($this->myRentals->removeElement($myRental)) {
+            // set the owning side to null (unless already changed)
+            if ($myRental->getCustomer() === $this) {
+                $myRental->setCustomer(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Rental>
+     */
+    public function getMyManagedRentals(): Collection
+    {
+        return $this->myManagedRentals;
+    }
+
+    public function addMyManagedRental(Rental $myManagedRental): static
+    {
+        if (!$this->myManagedRentals->contains($myManagedRental)) {
+            $this->myManagedRentals->add($myManagedRental);
+            $myManagedRental->setEmployee($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMyManagedRental(Rental $myManagedRental): static
+    {
+        if ($this->myManagedRentals->removeElement($myManagedRental)) {
+            // set the owning side to null (unless already changed)
+            if ($myManagedRental->getEmployee() === $this) {
+                $myManagedRental->setEmployee(null);
+            }
+        }
 
         return $this;
     }
