@@ -44,6 +44,9 @@ class Rental
     #[ORM\ManyToOne(inversedBy: 'myManagedRentals')]
     private ?User $employee = null;
 
+    #[ORM\OneToOne(mappedBy: 'rental', cascade: ['persist', 'remove'])]
+    private ?Delivery $delivery = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -141,6 +144,23 @@ class Rental
     public function setEmployee(?User $employee): static
     {
         $this->employee = $employee;
+
+        return $this;
+    }
+
+    public function getDelivery(): ?Delivery
+    {
+        return $this->delivery;
+    }
+
+    public function setDelivery(Delivery $delivery): static
+    {
+        // set the owning side of the relation if necessary
+        if ($delivery->getRental() !== $this) {
+            $delivery->setRental($this);
+        }
+
+        $this->delivery = $delivery;
 
         return $this;
     }
