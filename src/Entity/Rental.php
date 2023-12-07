@@ -47,6 +47,10 @@ class Rental
     #[ORM\OneToOne(mappedBy: 'rental', cascade: ['persist', 'remove'])]
     private ?Delivery $delivery = null;
 
+    #[ORM\ManyToOne(inversedBy: 'rentals')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Car $car = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -161,6 +165,18 @@ class Rental
         }
 
         $this->delivery = $delivery;
+
+        return $this;
+    }
+
+    public function getCar(): ?Car
+    {
+        return $this->car;
+    }
+
+    public function setCar(?Car $car): static
+    {
+        $this->car = $car;
 
         return $this;
     }
