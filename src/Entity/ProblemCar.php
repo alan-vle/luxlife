@@ -23,6 +23,10 @@ class ProblemCar
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $problemDate = null;
 
+    #[ORM\ManyToOne(inversedBy: 'problemCars')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Car $car = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -60,6 +64,18 @@ class ProblemCar
     public function setProblemDate(\DateTimeInterface $problemDate): static
     {
         $this->problemDate = $problemDate;
+
+        return $this;
+    }
+
+    public function getCar(): ?Car
+    {
+        return $this->car;
+    }
+
+    public function setCar(?Car $car): static
+    {
+        $this->car = $car;
 
         return $this;
     }
