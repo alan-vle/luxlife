@@ -27,6 +27,8 @@ class UserFixtures extends Fixture
         $admin->setRoles(['ROLE_ADMIN']);
         $admin->setActive(true);
 
+        $agencyOfMarseille = $this->getReference(AgencyFixtures::AGENCY_REFERENCE);
+
         $agencyDirector = new User();
         $agencyDirector->setFirstName('Bruce');
         $agencyDirector->setLastName('Douglas');
@@ -37,6 +39,7 @@ class UserFixtures extends Fixture
         $agencyDirector->setBirthDate(new \DateTime('1987/08/24'));
         $agencyDirector->setRoles(['ROLE_DIRECTOR']);
         $agencyDirector->setActive(true);
+        $agencyDirector->setAgency($agencyOfMarseille);
 
         $receptionAgent = new User();
         $receptionAgent->setFirstName('Louise');
@@ -48,6 +51,7 @@ class UserFixtures extends Fixture
         $receptionAgent->setBirthDate(new \DateTime('1997/06/14'));
         $receptionAgent->setRoles(['ROLE_AGENT']);
         $receptionAgent->setActive(true);
+        $receptionAgent->setAgency($agencyOfMarseille);
 
         $customer = new User();
         $customer->setFirstName('Lucas');
@@ -76,5 +80,12 @@ class UserFixtures extends Fixture
             $user,
             $plaintextPassword
         );
+    }
+
+    public function getDependencies(): array
+    {
+        return [
+            AgencyFixtures::class,
+        ];
     }
 }
