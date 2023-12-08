@@ -25,6 +25,9 @@ class Agency
     #[ORM\Column(length: 140)]
     private ?string $address = null;
 
+    #[ORM\Column(length: 50)]
+    private ?string $city = null;
+
     #[ORM\Column(length: 90)]
     private ?string $email = null;
 
@@ -75,6 +78,18 @@ class Agency
     public function setAddress(string $address): static
     {
         $this->address = $address;
+
+        return $this;
+    }
+
+    public function getCity(): ?string
+    {
+        return $this->city;
+    }
+
+    public function setCity(string $city): static
+    {
+        $this->city = $city;
 
         return $this;
     }
