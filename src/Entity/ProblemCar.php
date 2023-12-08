@@ -7,6 +7,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ProblemCarRepository::class)]
+#[ORM\Table(name: '`problem_car`')]
 class ProblemCar
 {
     #[ORM\Id]
@@ -44,7 +45,7 @@ class ProblemCar
         return $this;
     }
 
-    public function isType(): ?bool
+    public function getType(): ?bool
     {
         return $this->type;
     }

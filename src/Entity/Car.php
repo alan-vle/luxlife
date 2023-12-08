@@ -10,6 +10,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CarRepository::class)]
+#[ORM\Table(name: '`car`')]
+#[ORM\HasLifecycleCallbacks]
 class Car
 {
     use UuidTrait;
