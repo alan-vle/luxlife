@@ -9,6 +9,8 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: RentalRepository::class)]
+#[ORM\Table(name: '`rental`')]
+#[ORM\HasLifecycleCallbacks]
 class Rental
 {
     use UuidTrait;
