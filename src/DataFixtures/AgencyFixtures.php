@@ -8,6 +8,8 @@ use Doctrine\Persistence\ObjectManager;
 
 class AgencyFixtures extends Fixture
 {
+    public const AGENCY_REFERENCE = 'admin-user';
+
     public function load(ObjectManager $manager): void
     {
         $agency = new Agency();
@@ -17,6 +19,8 @@ class AgencyFixtures extends Fixture
         $agency->setOpeningHours(new \DateTime('08:00'));
         $agency->setClosingHours(new \DateTime('08:00'));
         $agency->setStatus(true);
+
+        $this->addReference(self::AGENCY_REFERENCE, $agency);
 
         $manager->persist($agency);
         $manager->flush();
