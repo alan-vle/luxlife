@@ -5,31 +5,22 @@ namespace App\Entity\Trait;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\PrePersist;
 use Symfony\Component\Uid\Uuid;
+use Symfony\Component\Validator\Constraints as Assert;
 
 trait UuidTrait
 {
+    #[Assert\Uuid(versions: [4])]
     #[Column(type: 'uuid')]
     private ?Uuid $uuid = null;
-
-    #[PrePersist]
-    public function setUuidWhenPersist(): void
-    {
-        $uuid = Uuid::v4();
-        $this->setUuid($uuid);
-    }
 
     public function getUuid(): ?Uuid
     {
         return $this->uuid;
     }
 
-    /**
-     * @return $this
-     */
-    public function setUuid(Uuid $uuid): static
+    #[PrePersist]
+    public function setUuidValue(): void
     {
-        $this->uuid = $uuid;
-
-        return $this;
+        $this->uuid = Uuid::v4();
     }
 }

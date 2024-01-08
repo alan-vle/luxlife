@@ -5,7 +5,7 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME}_dev_nginx
     build:
       context: .
-      dockerfile: nginx/dev/Dockerfile
+      dockerfile: docker/nginx/dev/Dockerfile
     ports:
       - "8080:80"
     networks:
@@ -19,7 +19,7 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME}_dev_php
     build:
       context: .
-      dockerfile: php/dev/Dockerfile
+      dockerfile: docker/php/dev/Dockerfile
     networks:
       - symfony
     volumes:

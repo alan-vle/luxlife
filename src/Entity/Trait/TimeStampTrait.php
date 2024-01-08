@@ -9,11 +9,16 @@ use Doctrine\ORM\Mapping\PreUpdate;
 
 trait TimeStampTrait
 {
-    #[Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Column(type: Types::DATETIME_IMMUTABLE, updatable: false)]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
 
     #[PrePersist]
     public function setCreatedAtValue(): void
@@ -21,19 +26,14 @@ trait TimeStampTrait
         $this->createdAt = new \DateTimeImmutable();
     }
 
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
     #[PreUpdate]
     public function setUpdatedAtValue(): void
     {
         $this->updatedAt = new \DateTime();
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
     }
 }
