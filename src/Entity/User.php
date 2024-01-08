@@ -81,11 +81,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 130, nullable: true)]
     private ?string $address = null;
 
-    #[
-        Assert\Date,
-        Assert\NotBlank(message: 'The birth date should not be blank.'),
-        Assert\GreaterThanOrEqual('-18 years', message: 'You should have 18 years old or more.',
-        )]
+    #[Assert\Date]
+    #[Assert\NotBlank(message: 'The birth date should not be blank.')]
+    #[Assert\GreaterThanOrEqual('-18 years', message: 'You should have 18 years old or more.')]
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $birthDate = null;
 
@@ -103,24 +101,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 9)]
     private ?string $phoneNumber = null;
 
-    #[
-        Assert\Type(type: 'boolean', message: 'The value {{ value }} is not a valid {{ type }}.'),
-        Assert\NotNull
-    ]
+    #[Assert\Type(type: 'boolean', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotNull]
     #[ORM\Column]
     private ?bool $verifiedEmail = false;
 
-    #[
-        Assert\Type(type: 'boolean', message: 'The value {{ value }} is not a valid {{ type }}.'),
-        Assert\NotNull
-    ]
+    #[Assert\Type(type: 'boolean', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotNull]
     #[ORM\Column]
     private ?bool $verifiedPhoneNumber = false;
 
-    #[
-        Assert\Type(type: 'boolean', message: 'The value {{ value }} is not a valid {{ type }}.'),
-        Assert\NotNull
-    ]
+    #[Assert\Type(type: 'boolean', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotNull]
     #[ORM\Column]
     private ?bool $active = true;
 
