@@ -6,6 +6,7 @@ use App\Repository\Car\ManufacturerRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ManufacturerRepository::class)]
 #[ORM\Table(name: '`manufacturer`')]
@@ -16,6 +17,9 @@ class Manufacturer
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotBlank(message: 'The description should not be blank.')]
+    #[Assert\Length(max: 16, maxMessage: 'The name cannot be longer than {{ limit }} characters')]
     #[ORM\Column(length: 16)]
     private ?string $name = null;
 
