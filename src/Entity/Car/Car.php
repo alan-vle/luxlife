@@ -1,10 +1,12 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Car;
 
+use App\Entity\Agency;
+use App\Entity\Rental;
 use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
-use App\Repository\CarRepository;
+use App\Repository\Car\CarRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -30,7 +32,6 @@ class Car
 
     #[Assert\Type(type: 'integer', message: 'The value {{ value }} is not a valid {{ type }}.')]
     #[Assert\NotNull(message: 'The kilometers should not be blank.')]
-    #[Assert\Length(max: 50, maxMessage: 'The kilometers cannot be longer than {{ limit }} characters')]
     #[ORM\Column]
     private ?int $kilometers = 0;
 
