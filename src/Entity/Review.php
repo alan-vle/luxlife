@@ -2,24 +2,37 @@
 
 namespace App\Entity;
 
+use App\Entity\Trait\TimeStampTrait;
 use App\Repository\ReviewRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\PrePersist;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ReviewRepository::class)]
 #[ORM\Table(name: '`review`')]
 #[ORM\HasLifecycleCallbacks]
 class Review
 {
+    use TimeStampTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Assert\Type(type: 'numeric', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotNull]
+    #[Assert\NotBlank]
+    #[Assert\Range(
+        notInRangeMessage: 'There is a problem with your star.',
+        min: 0,
+        max: 5.0
+    )]
     #[ORM\Column(type: Types::DECIMAL, precision: 2, scale: 1)]
     private ?string $star = null;
 
+    #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotBlank(message: 'The description should not be blank.')]
     #[ORM\Column(type: Types::TEXT)]
     private ?string $details = null;
 
@@ -30,9 +43,6 @@ class Review
     #[ORM\ManyToOne(inversedBy: 'reviews')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Agency $agency = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
 
     public function getId(): ?int
     {
@@ -85,16 +95,5 @@ class Review
         $this->agency = $agency;
 
         return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    #[PrePersist]
-    public function setCreatedAtValue(): void
-    {
-        $this->createdAt = new \DateTimeImmutable();
     }
 }
