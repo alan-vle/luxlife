@@ -8,6 +8,7 @@ use App\Repository\CarRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CarRepository::class)]
 #[ORM\Table(name: '`car`')]
@@ -21,12 +22,20 @@ class Car
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotBlank(message: 'The model should not be blank.')]
+    #[Assert\Length(max: 50, maxMessage: 'The model cannot be longer than {{ limit }} characters')]
     #[ORM\Column(length: 50)]
     private ?string $model = null;
 
+    #[Assert\Type(type: 'integer', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotNull(message: 'The kilometers should not be blank.')]
+    #[Assert\Length(max: 50, maxMessage: 'The kilometers cannot be longer than {{ limit }} characters')]
     #[ORM\Column]
-    private ?int $kilometers = null;
+    private ?int $kilometers = 0;
 
+    #[Assert\Type(type: 'boolean', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotNull]
     #[ORM\Column]
     private ?bool $status = null;
 
