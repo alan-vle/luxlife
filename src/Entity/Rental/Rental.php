@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Rental;
 
 use App\Entity\Car\Car;
 use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
-use App\Repository\RentalRepository;
+use App\Entity\User;
+use App\Repository\Rental\RentalRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;

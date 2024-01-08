@@ -3,7 +3,7 @@
 namespace App\Entity\Car;
 
 use App\Entity\Agency;
-use App\Entity\Rental;
+use App\Entity\Rental\Rental;
 use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
 use App\Repository\Car\CarRepository;
