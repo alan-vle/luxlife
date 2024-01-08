@@ -8,6 +8,7 @@ use App\Entity\Trait\UuidTrait;
 use App\Repository\RentalRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: RentalRepository::class)]
 #[ORM\Table(name: '`rental`')]
@@ -22,21 +23,38 @@ class Rental
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Assert\Type(type: 'boolean', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotNull]
     #[ORM\Column]
     private ?bool $contract = null;
 
+    #[Assert\Type(type: 'integer', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotNull(message: 'The kilometers should not be blank.')]
     #[ORM\Column]
     private ?int $mileageKilometers = null;
 
+    #[Assert\DateTime]
+    #[Assert\NotBlank]
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $fromDate = null;
 
+    #[Assert\DateTime]
+    #[Assert\NotBlank]
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $toDate = null;
 
+    #[Assert\Type(type: 'numeric', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotNull]
+    #[Assert\Range(
+        notInRangeMessage: 'There is a problem with your price coordinate.',
+        min: 0,
+        max: 999999.99
+    )]
     #[ORM\Column(type: Types::DECIMAL, precision: 8, scale: 2)]
     private ?string $price = null;
 
+    #[Assert\Type(type: 'integer', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotNull(message: 'The kilometers should not be blank.')]
     #[ORM\Column]
     private ?int $status = null;
 
