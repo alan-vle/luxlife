@@ -38,6 +38,9 @@ class Rental
     #[ORM\Column]
     private ?int $mileageKilometers = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $usedKilometers = null;
+
     #[Assert\DateTime]
     #[Assert\NotBlank]
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
@@ -106,6 +109,18 @@ class Rental
     public function setMileageKilometers(int $mileageKilometers): static
     {
         $this->mileageKilometers = $mileageKilometers;
+
+        return $this;
+    }
+
+    public function getUsedKilometers(): ?int
+    {
+        return $this->usedKilometers;
+    }
+
+    public function setUsedKilometers(?int $usedKilometers): static
+    {
+        $this->usedKilometers = $usedKilometers;
 
         return $this;
     }

@@ -2,6 +2,8 @@
 
 namespace App\Entity\Car;
 
+use App\Entity\Trait\TimeStampTrait;
+use App\Entity\Trait\UuidTrait;
 use App\Repository\Car\ManufacturerRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -10,8 +12,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ManufacturerRepository::class)]
 #[ORM\Table(name: '`manufacturer`')]
+#[ORM\HasLifecycleCallbacks]
 class Manufacturer
 {
+    use UuidTrait;
+    use TimeStampTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -41,12 +47,12 @@ class Manufacturer
 
     public function getName(): ?string
     {
-        return $this->name;
+        return ucfirst($this->name ?: '');
     }
 
     public function setName(string $name): static
     {
-        $this->name = $name;
+        $this->name = strtolower($name);
 
         return $this;
     }

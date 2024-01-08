@@ -3,12 +3,14 @@
 namespace App\Entity\Car;
 
 use App\Entity\Agency;
+use App\Entity\Enum\Car\CarStatusEnum;
 use App\Entity\Rental\Rental;
 use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
 use App\Repository\Car\CarRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -37,8 +39,8 @@ class Car
 
     #[Assert\Type(type: 'boolean', message: 'The value {{ value }} is not a valid {{ type }}.')]
     #[Assert\NotNull]
-    #[ORM\Column]
-    private ?bool $status = null;
+    #[ORM\Column(type: Types::SMALLINT, enumType: CarStatusEnum::class)]
+    private ?CarStatusEnum $status = null;
 
     #[ORM\ManyToOne(inversedBy: 'cars')]
     #[ORM\JoinColumn(nullable: false)]
@@ -95,12 +97,12 @@ class Car
         return $this;
     }
 
-    public function isStatus(): ?bool
+    public function isStatus(): ?CarStatusEnum
     {
         return $this->status;
     }
 
-    public function setStatus(bool $status): static
+    public function setStatus(CarStatusEnum $status): static
     {
         $this->status = $status;
 
