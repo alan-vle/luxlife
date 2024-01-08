@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Rental;
 
+use App\Entity\Enum\Rental\DeliveryStatusEnum;
 use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
-use App\Repository\DeliveryRepository;
+use App\Repository\Rental\DeliveryRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: DeliveryRepository::class)]
 #[ORM\Table(name: '`delivery`')]
@@ -15,17 +17,26 @@ class Delivery
 {
     use UuidTrait;
     use TimeStampTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column]
-    private ?int $status = null;
+    #[Assert\Type(type: 'boolean', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotNull]
+    #[ORM\Column(type: types::SMALLINT, enumType: DeliveryStatusEnum::class)]
+    private ?DeliveryStatusEnum $status = null;
 
+    #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotBlank(message: 'The address should not be blank.')]
+    #[Assert\Regex(pattern: '/^[a-zA-Z0-9\s\-\',]*$/', message: 'The {{ value }} is not a valid address.')]
+    #[Assert\Length(max: 130, maxMessage: 'The address cannot be longer than {{ limit }} characters')]
     #[ORM\Column(length: 130)]
     private ?string $address = null;
 
+    #[Assert\DateTime]
+    #[Assert\NotBlank]
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $deliveryDate = null;
 
@@ -38,12 +49,12 @@ class Delivery
         return $this->id;
     }
 
-    public function getStatus(): ?int
+    public function getStatus(): ?DeliveryStatusEnum
     {
         return $this->status;
     }
 
-    public function setStatus(int $status): static
+    public function setStatus(DeliveryStatusEnum $status): static
     {
         $this->status = $status;
 

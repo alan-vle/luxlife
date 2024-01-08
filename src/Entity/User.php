@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Rental\Rental;
 use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
 use App\Repository\UserRepository;
