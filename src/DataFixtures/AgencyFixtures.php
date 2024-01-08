@@ -6,13 +6,15 @@ use App\Entity\Agency;
 use App\Entity\Enum\AgencyStatusEnum;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Faker;
 
 class AgencyFixtures extends Fixture
 {
-    public const AGENCY_REFERENCE = 'admin-user';
+    public const AGENCY_MARSEILLE_REFERENCE = 'agency-marseille-user';
 
     public function load(ObjectManager $manager): void
     {
+        $faker = Faker\Factory::create('fr_FR');
         $agency = new Agency();
         $agency->setAddress('2 rue du Clusety');
         $agency->setCity('Marseille, 13013');
@@ -21,7 +23,7 @@ class AgencyFixtures extends Fixture
         $agency->setClosingHours(new \DateTime('08:00'));
         $agency->setStatus(AgencyStatusEnum::OPEN);
 
-        $this->addReference(self::AGENCY_REFERENCE, $agency);
+        $this->addReference(self::AGENCY_MARSEILLE_REFERENCE, $agency);
 
         $manager->persist($agency);
         $manager->flush();
