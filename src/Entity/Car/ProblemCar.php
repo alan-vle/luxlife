@@ -2,6 +2,8 @@
 
 namespace App\Entity\Car;
 
+use App\Entity\Trait\TimeStampTrait;
+use App\Entity\Trait\UuidTrait;
 use App\Repository\Car\ProblemCarRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -9,8 +11,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ProblemCarRepository::class)]
 #[ORM\Table(name: '`problem_car`')]
+#[ORM\HasLifecycleCallbacks]
 class ProblemCar
 {
+    use UuidTrait;
+    use TimeStampTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -21,6 +27,9 @@ class ProblemCar
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
+    /**
+     * Type : Failure (0), Accident (1).
+     */
     #[Assert\Type(type: 'boolean', message: 'The value {{ value }} is not a valid {{ type }}.')]
     #[Assert\NotNull]
     #[ORM\Column]
@@ -52,6 +61,9 @@ class ProblemCar
         return $this;
     }
 
+    /**
+     * Type : Failure (0), Accident (1).
+     */
     public function getType(): ?bool
     {
         return $this->type;
