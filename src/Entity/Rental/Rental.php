@@ -3,6 +3,7 @@
 namespace App\Entity\Rental;
 
 use App\Entity\Car\Car;
+use App\Entity\Enum\Rental\RentalStatusEnum;
 use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
 use App\Entity\User;
@@ -24,6 +25,9 @@ class Rental
     #[ORM\Column]
     private ?int $id = null;
 
+    /**
+     * Contract : LLD (1), Classic (0).
+     */
     #[Assert\Type(type: 'boolean', message: 'The value {{ value }} is not a valid {{ type }}.')]
     #[Assert\NotNull]
     #[ORM\Column]
@@ -57,8 +61,8 @@ class Rental
 
     #[Assert\Type(type: 'integer', message: 'The value {{ value }} is not a valid {{ type }}.')]
     #[Assert\NotNull(message: 'The kilometers should not be blank.')]
-    #[ORM\Column]
-    private ?int $status = null;
+    #[ORM\Column(type: types::SMALLINT, enumType: RentalStatusEnum::class)]
+    private ?RentalStatusEnum $status = null;
 
     #[ORM\ManyToOne(inversedBy: 'myRentals')]
     #[ORM\JoinColumn(nullable: false)]
@@ -79,6 +83,9 @@ class Rental
         return $this->id;
     }
 
+    /**
+     * Contract : LLD (1), Classic (0).
+     */
     public function getContract(): ?bool
     {
         return $this->contract;
@@ -139,12 +146,12 @@ class Rental
         return $this;
     }
 
-    public function getStatus(): ?int
+    public function getStatus(): ?RentalStatusEnum
     {
         return $this->status;
     }
 
-    public function setStatus(int $status): static
+    public function setStatus(RentalStatusEnum $status): static
     {
         $this->status = $status;
 
