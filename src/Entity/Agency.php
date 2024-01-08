@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Enum\AgencyStatusEnum;
 use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
 use App\Repository\AgencyRepository;
@@ -9,31 +10,48 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AgencyRepository::class)]
 #[ORM\Table(name: '`agency`')]
+#[UniqueEntity('email', message: 'This email is already in used.')]
 #[ORM\HasLifecycleCallbacks]
 class Agency
 {
     use UuidTrait;
     use TimeStampTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 140)]
+    #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotBlank(message: 'The address should not be blank.')]
+    #[Assert\Regex(pattern: '/^[a-zA-Z0-9\s\-\',]*$/', message: 'The {{ value }} is not a valid address.')]
+    #[Assert\Length(max: 130, maxMessage: 'The address cannot be longer than {{ limit }} characters')]
+    #[ORM\Column(length: 130)]
     private ?string $address = null;
 
+    #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotBlank(message: 'The city should not be blank.')]
+    #[Assert\Regex(pattern: '/^[a-zA-Z0-9\s\-\',]*$/', message: 'The {{ value }} is not a valid city.')]
+    #[Assert\Length(max: 50, maxMessage: 'The address cannot be longer than {{ limit }} characters')]
     #[ORM\Column(length: 50)]
     private ?string $city = null;
 
-    #[ORM\Column(length: 90)]
+    #[Assert\Email(message: 'The email {{ value }} is not a valid email.')]
+    #[Assert\NotBlank(message: 'The email should not be blank.')]
+    #[Assert\Length(max: 180, maxMessage: 'The email cannot be longer than {{ limit }} characters.')]
+    #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;
 
+    #[Assert\Time, Assert\NotBlank]
     #[ORM\Column(type: Types::TIME_MUTABLE)]
     private ?\DateTimeInterface $openingHours = null;
 
+    #[Assert\Time, Assert\NotBlank]
     #[ORM\Column(type: Types::TIME_MUTABLE)]
     private ?\DateTimeInterface $closingHours = null;
 
@@ -43,8 +61,10 @@ class Agency
     #[ORM\OneToMany(mappedBy: 'agency', targetEntity: User::class)]
     private Collection $users;
 
-    #[ORM\Column]
-    private ?bool $status = null;
+    #[Assert\Type(type: 'integer', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotNull]
+    #[ORM\Column(type: Types::SMALLINT, enumType: AgencyStatusEnum::class)]
+    private ?AgencyStatusEnum $status = null;
 
     /**
      * @var ArrayCollection<int, Car> $cars
@@ -160,12 +180,12 @@ class Agency
         return $this;
     }
 
-    public function isStatus(): ?bool
+    public function isStatus(): ?AgencyStatusEnum
     {
         return $this->status;
     }
 
-    public function setStatus(bool $status): static
+    public function setStatus(AgencyStatusEnum $status): static
     {
         $this->status = $status;
 

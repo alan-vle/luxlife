@@ -3,6 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\Agency;
+use App\Entity\Enum\AgencyStatusEnum;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
@@ -18,7 +19,7 @@ class AgencyFixtures extends Fixture
         $agency->setEmail('contact-marseille@luxlife.com');
         $agency->setOpeningHours(new \DateTime('08:00'));
         $agency->setClosingHours(new \DateTime('08:00'));
-        $agency->setStatus(true);
+        $agency->setStatus(AgencyStatusEnum::OPEN);
 
         $this->addReference(self::AGENCY_REFERENCE, $agency);
 
