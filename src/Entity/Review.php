@@ -32,7 +32,7 @@ class Review
     private ?string $star = null;
 
     #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
-    #[Assert\NotBlank(message: 'The description should not be blank.')]
+    #[Assert\NotBlank(message: 'The details should not be blank.')]
     #[ORM\Column(type: Types::TEXT)]
     private ?string $details = null;
 
