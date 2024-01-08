@@ -46,8 +46,9 @@ class Rental
 
     #[Assert\Type(type: 'numeric', message: 'The value {{ value }} is not a valid {{ type }}.')]
     #[Assert\NotNull]
+    #[Assert\NotBlank]
     #[Assert\Range(
-        notInRangeMessage: 'There is a problem with your price coordinate.',
+        notInRangeMessage: 'There is a problem with your price.',
         min: 0,
         max: 999999.99
     )]
