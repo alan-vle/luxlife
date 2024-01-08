@@ -11,6 +11,8 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Constraints\PasswordStrength;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`web_user`')]
@@ -25,35 +27,99 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotBlank(message: 'The first name should not be blank.')]
+    #[Assert\Length(
+        min: 2,
+        max: 50,
+        minMessage: 'Your first name must be at least {{ limit }} characters long.',
+        maxMessage: 'Your first name cannot be longer than {{ limit }} characters.',
+    )]
     #[ORM\Column(length: 50)]
     private ?string $firstName = null;
 
+    #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotBlank(message: 'The last name should not be blank.')]
+    #[Assert\Length(
+        min: 2,
+        max: 50,
+        minMessage: 'The last name must be at least {{ limit }} characters long.',
+        maxMessage: 'The last name cannot be longer than {{ limit }} characters.',
+    )]
     #[ORM\Column(length: 50)]
     private ?string $lastName = null;
 
+    #[Assert\Email(message: 'The email {{ value }} is not a valid email.')]
+    #[Assert\NotBlank(message: 'The email should not be blank.')]
+    #[Assert\Length(max: 180, maxMessage: 'The email cannot be longer than {{ limit }} characters.')]
     #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;
 
     /**
      * @var ?string The hashed password
      */
+    #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotBlank(message: 'The password should not be blank.', groups: ['user:write'])]
+    #[Assert\Length(
+        min: 8,
+        max: 100,
+        minMessage: 'The password must be at least {{ limit }} characters long',
+        maxMessage: 'The password cannot be longer than {{ limit }} characters',
+    )]
+    #[Assert\PasswordStrength([
+        'minScore' => PasswordStrength::STRENGTH_STRONG, // Strong password required
+    ])]
     #[ORM\Column]
     private ?string $password = null;
 
+    #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotBlank(message: 'The address should not be blank.')]
+    #[Assert\Regex(pattern: '/^[a-zA-Z0-9\s\-\',]*$/', message: 'The {{ value }} is not a valid address.')]
     #[ORM\Column(length: 130, nullable: true)]
     private ?string $address = null;
 
+    #[
+        Assert\Date,
+        Assert\NotBlank(message: 'The birth date should not be blank.'),
+        Assert\GreaterThanOrEqual('-18 years', message: 'You should have 18 years old or more.',
+        )]
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $birthDate = null;
 
     /**
      * @var array<string> $roles
      */
+    #[Assert\Type(type: 'array', message: 'The value {{ value }} is not a valid {{ type }}.')]
     #[ORM\Column]
     private array $roles = [];
 
+    #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotBlank(message: 'The phone number should not be blank.')]
+    #[Assert\Regex(pattern: '/^[+\d][\d\s]*$/', message: 'The phone number must begin with + or 0.')]
+    #[Assert\Length(exactly: 3, exactMessage: 'The phone number should have exactly {{ limit }} characters.')]
+    #[ORM\Column(length: 9)]
+    private ?string $phoneNumber = null;
+
+    #[
+        Assert\Type(type: 'boolean', message: 'The value {{ value }} is not a valid {{ type }}.'),
+        Assert\NotNull
+    ]
     #[ORM\Column]
-    private ?bool $active = false;
+    private ?bool $verifiedEmail = false;
+
+    #[
+        Assert\Type(type: 'boolean', message: 'The value {{ value }} is not a valid {{ type }}.'),
+        Assert\NotNull
+    ]
+    #[ORM\Column]
+    private ?bool $verifiedPhoneNumber = false;
+
+    #[
+        Assert\Type(type: 'boolean', message: 'The value {{ value }} is not a valid {{ type }}.'),
+        Assert\NotNull
+    ]
+    #[ORM\Column]
+    private ?bool $active = true;
 
     #[ORM\ManyToOne(inversedBy: 'users')]
     private ?Agency $agency = null;
@@ -206,6 +272,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function getPhoneNumber(): ?string
+    {
+        return $this->phoneNumber;
+    }
+
+    public function setPhoneNumber(string $phoneNumber): static
+    {
+        $this->phoneNumber = $phoneNumber;
+
+        return $this;
+    }
+
     public function getAgency(): ?Agency
     {
         return $this->agency;
@@ -226,6 +304,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setActive(bool $active): static
     {
         $this->active = $active;
+
+        return $this;
+    }
+
+    public function isVerifiedEmail(): ?bool
+    {
+        return $this->verifiedEmail;
+    }
+
+    public function setVerifiedEmail(bool $verifiedEmail): static
+    {
+        $this->verifiedEmail = $verifiedEmail;
+
+        return $this;
+    }
+
+    public function isVerifiedPhoneNumber(): ?bool
+    {
+        return $this->verifiedPhoneNumber;
+    }
+
+    public function setVerifiedPhoneNumber(bool $verifiedPhoneNumber): static
+    {
+        $this->verifiedPhoneNumber = $verifiedPhoneNumber;
 
         return $this;
     }
