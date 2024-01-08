@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Car;
 
-use App\Repository\ProblemCarRepository;
+use App\Repository\Car\ProblemCarRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ProblemCarRepository::class)]
 #[ORM\Table(name: '`problem_car`')]
@@ -15,12 +16,18 @@ class ProblemCar
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotBlank(message: 'The description should not be blank.')]
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
+    #[Assert\Type(type: 'boolean', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotNull]
     #[ORM\Column]
     private ?bool $type = null;
 
+    #[Assert\DateTime]
+    #[Assert\NotBlank]
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $problemDate = null;
 
