@@ -44,6 +44,10 @@ class Delivery
     #[ORM\JoinColumn(nullable: false)]
     private ?Rental $rental = null;
 
+    public function __construct()
+    {
+    }
+
     public function getId(): ?int
     {
         return $this->id;

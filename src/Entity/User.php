@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Entity\Rental\Rental;
+use App\Entity\Rental\RentalArchived;
 use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
 use App\Repository\UserRepository;
@@ -138,11 +139,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'customer', targetEntity: Review::class)]
     private Collection $reviews;
 
+    /**
+     * @var ArrayCollection<int, RentalArchived> $rentalsArchivedAsCustomer
+     */
+    #[ORM\OneToMany(mappedBy: 'customer', targetEntity: RentalArchived::class)]
+    private Collection $rentalsArchivedAsCustomer;
+
+    /**
+     * @var ArrayCollection<int, RentalArchived> $rentalsArchivedAsEmployee
+     */
+    #[ORM\OneToMany(mappedBy: 'employee', targetEntity: RentalArchived::class)]
+    private Collection $rentalsArchivedAsEmployee;
+
     public function __construct()
     {
         $this->myRentals = new ArrayCollection();
         $this->myManagedRentals = new ArrayCollection();
         $this->reviews = new ArrayCollection();
+        $this->rentalsArchivedAsCustomer = new ArrayCollection();
+        $this->rentalsArchivedAsEmployee = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -416,6 +431,66 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($review->getCustomer() === $this) {
                 $review->setCustomer(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, RentalArchived>
+     */
+    public function getRentalsArchivedAsCustomer(): Collection
+    {
+        return $this->rentalsArchivedAsCustomer;
+    }
+
+    public function addRentalsArchivedAsCustomer(RentalArchived $rentalArchivedAsCustomer): static
+    {
+        if (!$this->rentalsArchivedAsCustomer->contains($rentalArchivedAsCustomer)) {
+            $this->rentalsArchivedAsCustomer->add($rentalArchivedAsCustomer);
+            $rentalArchivedAsCustomer->setCustomer($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRentalArchivedAsCustomer(RentalArchived $rentalArchivedAsCustomer): static
+    {
+        if ($this->rentalsArchivedAsCustomer->removeElement($rentalArchivedAsCustomer)) {
+            // set the owning side to null (unless already changed)
+            if ($rentalArchivedAsCustomer->getCustomer() === $this) {
+                $rentalArchivedAsCustomer->setCustomer(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, RentalArchived>
+     */
+    public function getRentalsArchivedAsEmployee(): Collection
+    {
+        return $this->rentalsArchivedAsEmployee;
+    }
+
+    public function addRentalsArchivedAsEmployee(RentalArchived $rentalsArchivedAsEmployee): static
+    {
+        if (!$this->rentalsArchivedAsEmployee->contains($rentalsArchivedAsEmployee)) {
+            $this->rentalsArchivedAsEmployee->add($rentalsArchivedAsEmployee);
+            $rentalsArchivedAsEmployee->setEmployee($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRentalsArchivedAsEmployee(RentalArchived $rentalsArchivedAsEmployee): static
+    {
+        if ($this->rentalsArchivedAsEmployee->removeElement($rentalsArchivedAsEmployee)) {
+            // set the owning side to null (unless already changed)
+            if ($rentalsArchivedAsEmployee->getEmployee() === $this) {
+                $rentalsArchivedAsEmployee->setEmployee(null);
             }
         }
 

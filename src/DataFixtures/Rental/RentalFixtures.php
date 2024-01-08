@@ -5,6 +5,7 @@ namespace App\DataFixtures\Rental;
 use App\DataFixtures\Car\CarFixtures;
 use App\DataFixtures\UserFixtures;
 use App\Entity\Car\Car;
+use App\Entity\Enum\Rental\RentalContractEnum;
 use App\Entity\Enum\Rental\RentalStatusEnum;
 use App\Entity\Rental\Rental;
 use App\Entity\User;
@@ -14,7 +15,9 @@ use Doctrine\Persistence\ObjectManager;
 
 class RentalFixtures extends Fixture implements DependentFixtureInterface
 {
-    public const RENTAL_DELIVERY_REF = 'rental-delivery';
+    public const RENTAL_DELIVERY_REF = 'delivery-rental';
+    public const RENTAL_RETURNED_REF = 'returned-rental';
+    public const RENTAL_RETURNED_MUST_BE_ARCHIVED_REF = 'returned-must-be-archived-rental';
 
     public function load(ObjectManager $manager): void
     {
@@ -30,7 +33,9 @@ class RentalFixtures extends Fixture implements DependentFixtureInterface
                 ->setCar(
                     is_string($rentalData['car']) ? $this->isInstanceOfCar($rentalData['car']) : throw new \Exception()
                 )
-                ->setContract(!(0 === $rentalData['contract']))
+                ->setContract(
+                    $rentalData['contract'] instanceof RentalContractEnum ? $rentalData['contract'] : throw new \Exception()
+                )
                 ->setMileageKilometers(
                     is_int($rentalData['mileage_kilometers']) ? $rentalData['mileage_kilometers'] : 0
                 )
@@ -66,6 +71,8 @@ class RentalFixtures extends Fixture implements DependentFixtureInterface
 
                     $car->setKilometers($adjustedKilometers);
                 }
+
+                $this->addReference(is_string($rentalData['ref']) ? $rentalData['ref'] : '', $rental);
             }
         }
 
@@ -100,7 +107,7 @@ class RentalFixtures extends Fixture implements DependentFixtureInterface
     }
 
     /**
-     * @return array<int, array<string, RentalStatusEnum|int|string>>
+     * @return array<int, array<string, RentalStatusEnum|RentalContractEnum|int|string>>
      */
     private function getRentalsData(): array
     {
@@ -109,7 +116,7 @@ class RentalFixtures extends Fixture implements DependentFixtureInterface
                 'customer' => UserFixtures::CUSTOMER_REF,
                 'employee' => UserFixtures::AGENT_REF,
                 'car' => CarFixtures::AUDI_R8_REF,
-                'contract' => 1,
+                'contract' => RentalContractEnum::LLD,
                 'mileage_kilometers' => 42000,
                 'from_date' => '2024-01-18',
                 'to_date' => '2026-01-25',
@@ -119,7 +126,7 @@ class RentalFixtures extends Fixture implements DependentFixtureInterface
             [
                 'customer' => UserFixtures::CUSTOMER_REF,
                 'car' => CarFixtures::TESLA_MODEL_S_REF,
-                'contract' => 0,
+                'contract' => RentalContractEnum::CLASSIC,
                 'mileage_kilometers' => 1000,
                 'from_date' => '2024-01-09',
                 'to_date' => '2024-01-19',
@@ -130,7 +137,7 @@ class RentalFixtures extends Fixture implements DependentFixtureInterface
                 'customer' => UserFixtures::CUSTOMER_REF,
                 'employee' => UserFixtures::AGENT_REF,
                 'car' => CarFixtures::AUDI_TT_REF,
-                'contract' => 0,
+                'contract' => RentalContractEnum::CLASSIC,
                 'mileage_kilometers' => 200,
                 'from_date' => '2024-01-14',
                 'to_date' => '2024-01-17',
@@ -140,7 +147,7 @@ class RentalFixtures extends Fixture implements DependentFixtureInterface
             [
                 'customer' => UserFixtures::CUSTOMER_REF,
                 'car' => CarFixtures::AUDI_Q2_REF,
-                'contract' => 1,
+                'contract' => RentalContractEnum::LLD,
                 'mileage_kilometers' => 7000,
                 'from_date' => '2024-01-09',
                 'to_date' => '2025-01-19',
@@ -151,13 +158,27 @@ class RentalFixtures extends Fixture implements DependentFixtureInterface
                 'customer' => UserFixtures::CUSTOMER_REF,
                 'employee' => UserFixtures::AGENT_REF,
                 'car' => CarFixtures::AUDI_Q3_REF,
-                'contract' => 0,
+                'contract' => RentalContractEnum::CLASSIC,
                 'mileage_kilometers' => 2000,
                 'used_kilometers' => 1850,
                 'from_date' => '2023-11-10',
                 'to_date' => '2023-12-02',
                 'price' => 3000,
                 'status' => RentalStatusEnum::RETURNED,
+                'ref' => self::RENTAL_RETURNED_REF,
+            ],
+            [
+                'customer' => UserFixtures::CUSTOMER_REF,
+                'employee' => UserFixtures::AGENT_REF,
+                'car' => CarFixtures::AUDI_Q3_REF,
+                'contract' => RentalContractEnum::CLASSIC,
+                'mileage_kilometers' => 4000,
+                'used_kilometers' => 3740,
+                'from_date' => '2023-01-01',
+                'to_date' => '2023-02-01',
+                'price' => 5000,
+                'status' => RentalStatusEnum::RETURNED,
+                'ref' => self::RENTAL_RETURNED_MUST_BE_ARCHIVED_REF,
             ],
         ];
     }

@@ -11,7 +11,7 @@ trait UuidTrait
 {
     #[Assert\Uuid(versions: [4])]
     #[Column(type: 'uuid')]
-    private ?Uuid $uuid = null;
+    protected ?Uuid $uuid = null;
 
     public function getUuid(): ?Uuid
     {

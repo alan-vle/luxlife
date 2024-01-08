@@ -5,6 +5,7 @@ namespace App\Entity\Car;
 use App\Entity\Agency;
 use App\Entity\Enum\Car\CarStatusEnum;
 use App\Entity\Rental\Rental;
+use App\Entity\Rental\RentalArchived;
 use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
 use App\Repository\Car\CarRepository;
@@ -62,10 +63,17 @@ class Car
     #[ORM\OneToMany(mappedBy: 'car', targetEntity: Rental::class)]
     private Collection $rentals;
 
+    /**
+     * @var ArrayCollection<int, RentalArchived> $rentalsArchived
+     */
+    #[ORM\OneToMany(mappedBy: 'car', targetEntity: RentalArchived::class)]
+    private Collection $rentalsArchived;
+
     public function __construct()
     {
         $this->problemCars = new ArrayCollection();
         $this->rentals = new ArrayCollection();
+        $this->rentalsArchived = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -187,6 +195,36 @@ class Car
             // set the owning side to null (unless already changed)
             if ($rental->getCar() === $this) {
                 $rental->setCar(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, RentalArchived>
+     */
+    public function getRentalsArchived(): Collection
+    {
+        return $this->rentalsArchived;
+    }
+
+    public function addRentalsArchived(RentalArchived $rentalsArchived): static
+    {
+        if (!$this->rentalsArchived->contains($rentalsArchived)) {
+            $this->rentalsArchived->add($rentalsArchived);
+            $rentalsArchived->setCar($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRentalsArchived(RentalArchived $rentalsArchived): static
+    {
+        if ($this->rentalsArchived->removeElement($rentalsArchived)) {
+            // set the owning side to null (unless already changed)
+            if ($rentalsArchived->getCar() === $this) {
+                $rentalsArchived->setCar(null);
             }
         }
 
