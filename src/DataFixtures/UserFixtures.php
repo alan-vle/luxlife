@@ -33,7 +33,95 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
             throw new \Exception("La référence n'est pas une instance de App\Entity\Agency.");
         }
 
-        $users = [
+        $users = self::getUsersData($agencyOfMarseille);
+
+        $faker = Faker\Factory::create('fr_FR');
+
+        foreach ($users as $userData) {
+            $user = new User();
+
+            $user
+                ->setFirstName(self::isString($userData['first_name']))
+                ->setLastName(self::isString($userData['last_name']))
+                ->setEmail(self::isString($userData['email']))
+                ->setPassword($this->passwordHasherFnc($user, self::isString($userData['password'])))
+                ->setAddress(self::isString($userData['address']))
+                ->setBirthDate(new \DateTime(self::isString($userData['birth_date'])))
+                /* @phpstan-ignore-next-line | Because he can't detect methods of FR faker provider */
+                ->setPhoneNumber($this->phoneNumberStandardization($faker->mobileNumber()))
+                ->setAgency(array_key_exists('agency', $userData) ? self::isInstanceOfAgency($userData['agency']) : null)
+                ->setRoles(is_array($userData['roles']) ? $userData['roles'] : [])
+            ;
+
+            if (in_array('ADMIN', self::isArray($userData['roles']))
+                || in_array('DIRECTOR', self::isArray($userData['roles']))
+                || in_array('AGENT', self::isArray($userData['roles']))
+            ) {
+                $user
+                    ->setVerifiedEmail(true)
+                    ->setVerifiedPhoneNumber(true)
+                ;
+            }
+            $manager->persist($user);
+
+            $this->addReference(self::isString($userData['ref']), $user);
+            $manager->flush();
+        }
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getDependencies(): array
+    {
+        return [
+            AgencyFixtures::class,
+        ];
+    }
+
+    /**
+     * @return array<string>
+     */
+    private static function isArray(mixed $value): array
+    {
+        return is_array($value) ? $value : [];
+    }
+
+    private static function isInstanceOfAgency(mixed $agency): Agency
+    {
+        return $agency instanceof Agency ? $agency : new Agency();
+    }
+
+    private static function isString(mixed $value): string
+    {
+        return is_string($value) ? $value : '';
+    }
+
+    /**
+     * Remove prefix of number : 0, +33, (0).
+     */
+    private function phoneNumberStandardization(string $phoneNumber): ?string
+    {
+        return preg_replace('/^\+33|^0|\s+|\(0\)/', '', $phoneNumber);
+    }
+
+    /**
+     * Hash user password.
+     */
+    private function passwordHasherFnc(User $user, string $plaintextPassword): string
+    {
+        return $this->passwordHasher->hashPassword(
+            $user,
+            $plaintextPassword
+        );
+    }
+
+    /**
+     * @return array<int, array<string, Agency|array<int, string>|string|null>>
+     */
+    private function getUsersData(Agency $agencyOfMarseille): array
+    {
+        return [
             [ // Admin
                 'first_name' => 'Jhhony',
                 'last_name' => 'Punisher',
@@ -76,65 +164,6 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
                 'roles' => ['CUSTOMER'],
                 'ref' => self::CUSTOMER_REF,
             ],
-        ];
-
-        $faker = Faker\Factory::create('fr_FR');
-
-        foreach ($users as $userData) {
-            $user = new User();
-
-            $user
-                ->setFirstName($userData['first_name'])
-                ->setLastName($userData['last_name'])
-                ->setEmail($userData['email'])
-                ->setPassword($this->passwordHasherFnc($user, $userData['password']))
-                ->setAddress($userData['address'] ?: '')
-                ->setBirthDate(new \DateTime($userData['birth_date']))
-                /* @phpstan-ignore-next-line | Because he can't detect methods of FR faker provider */
-                ->setPhoneNumber($this->phoneNumberStandardization($faker->mobileNumber()))
-                ->setAgency(array_key_exists('agency', $userData) ? $userData['agency'] : null)
-                ->setRoles($userData['roles'])
-            ;
-
-            if (in_array('ADMIN', $userData['roles']) || in_array('DIRECTOR', $userData['roles']) || in_array('AGENT', $userData['roles'])) {
-                $user
-                    ->setVerifiedEmail(true)
-                    ->setVerifiedPhoneNumber(true)
-                ;
-            }
-            $manager->persist($user);
-
-            $this->addReference($userData['ref'], $user);
-            $manager->flush();
-        }
-    }
-
-    /**
-     * Remove prefix of number : 0, +33, (0).
-     */
-    private function phoneNumberStandardization(string $phoneNumber): ?string
-    {
-        return preg_replace('/^\+33|^0|\s+|\(0\)/', '', $phoneNumber);
-    }
-
-    /**
-     * Hash user password.
-     */
-    private function passwordHasherFnc(User $user, string $plaintextPassword): string
-    {
-        return $this->passwordHasher->hashPassword(
-            $user,
-            $plaintextPassword
-        );
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getDependencies(): array
-    {
-        return [
-            AgencyFixtures::class,
         ];
     }
 }
