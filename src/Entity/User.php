@@ -2,11 +2,20 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Entity\Rental\Rental;
 use App\Entity\Rental\RentalArchived;
 use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
 use App\Repository\UserRepository;
+use App\State\UserPasswordHasher;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -14,21 +23,42 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Constraints\PasswordStrength;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`app_user`')]
 #[UniqueEntity('email', message: 'This email is already in used.')]
+#[ApiResource(
+    normalizationContext: ['groups' => ['user:read', 'identifier', 'timestamp']],
+    denormalizationContext: ['groups' => ['user:write', 'user:update']],
+)]
+#[GetCollection(security: "is_granted('ROLE_ADMIN')")]
+#[Get(security: "is_granted('ROLE_ADMIN') or object == user or (object.getAgency() and object.getAgency().getDirector() == user)")]
+#[Post(
+    security: "is_granted('ROLE_DIRECTOR')",
+    validationContext: ['groups' => ['Default', 'user:write']],
+    processor: UserPasswordHasher::class,
+)]
+#[Put(
+    security: "is_granted('ROLE_ADMIN') or object == user or object.getAgency().getDirector() == user",
+    //    securityPostDenormalize: "is_granted('ROLE_ADMIN') or (object == user and previous_object == user) or (object.getAgency().getDirector() == user and previous_object == object.getAgency().getDirector())",
+    processor: UserPasswordHasher::class,
+)]
+#[Patch(
+    security: "is_granted('ROLE_ADMIN') or object == user or object.getAgency().getDirector() == user",
+    processor: UserPasswordHasher::class
+)]
+#[Delete(security: "is_granted('ROLE_ADMIN')")]
 #[ORM\HasLifecycleCallbacks]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     use UuidTrait;
     use TimeStampTrait;
 
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ApiProperty(identifier: false)]
+    #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     private ?int $id = null;
 
     #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
@@ -39,6 +69,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         minMessage: 'Your first name must be at least {{ limit }} characters long.',
         maxMessage: 'Your first name cannot be longer than {{ limit }} characters.',
     )]
+    #[Groups(['user:read', 'user:write'])]
     #[ORM\Column(length: 50)]
     private ?string $firstName = null;
 
@@ -50,18 +81,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         minMessage: 'The last name must be at least {{ limit }} characters long.',
         maxMessage: 'The last name cannot be longer than {{ limit }} characters.',
     )]
+    #[Groups(['user:read', 'user:write'])]
     #[ORM\Column(length: 50)]
     private ?string $lastName = null;
 
     #[Assert\Email(message: 'The email {{ value }} is not a valid email.')]
     #[Assert\NotBlank(message: 'The email should not be blank.')]
     #[Assert\Length(max: 180, maxMessage: 'The email cannot be longer than {{ limit }} characters.')]
+    #[Groups(['user:read', 'user:write'])]
     #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;
 
     /**
      * @var ?string The hashed password
      */
+    #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[ORM\Column]
+    private ?string $password = null;
+
     #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
     #[Assert\NotBlank(message: 'The password should not be blank.', groups: ['user:write'])]
     #[Assert\Length(
@@ -71,21 +108,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         maxMessage: 'The password cannot be longer than {{ limit }} characters',
     )]
     #[Assert\PasswordStrength([
-        'minScore' => PasswordStrength::STRENGTH_STRONG, // Strong password required
+        'minScore' => PasswordStrength::STRENGTH_MEDIUM, // Strong password required
     ])]
-    #[ORM\Column]
-    private ?string $password = null;
+    #[Groups(['user:read', 'user:write', 'user:update'])]
+    private ?string $plainPassword = null;
 
     #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
-    #[Assert\NotBlank(message: 'The address should not be blank.')]
+    #[Assert\NotBlank(message: 'The address should not be blank.', groups: ['user:write'])]
     #[Assert\Regex(pattern: '/^[a-zA-Z0-9\s\-\',]*$/', message: 'The {{ value }} is not a valid address.')]
     #[Assert\Length(max: 130, maxMessage: 'The address cannot be longer than {{ limit }} characters')]
+    #[Groups(['user:read', 'user:write'])]
     #[ORM\Column(length: 130, nullable: true)]
     private ?string $address = null;
 
-    #[Assert\Date]
-    #[Assert\NotBlank(message: 'The birth date should not be blank.')]
-    #[Assert\GreaterThanOrEqual('-18 years', message: 'You should have 18 years old or more.')]
+    //    #[Assert\Date]
+    #[Assert\NotBlank(message: 'The birth date should not be blank.', groups: ['user:write'])]
+    #[Assert\LessThanOrEqual('-18 years', message: 'You should have 18 years old or more.')]
+    #[Groups(['user:read', 'user:write'])]
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $birthDate = null;
 
@@ -93,13 +132,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var array<string> $roles
      */
     #[Assert\Type(type: 'array', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Groups(['user:read', 'user:write'])]
     #[ORM\Column]
     private array $roles = [];
 
     #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
-    #[Assert\NotBlank(message: 'The phone number should not be blank.')]
-    #[Assert\Regex(pattern: '/^[+\d][\d\s]*$/', message: 'The phone number must begin with + or 0.')]
-    #[Assert\Length(exactly: 3, exactMessage: 'The phone number should have exactly {{ limit }} characters.')]
+    #[Assert\NotBlank(message: 'The phone number should not be blank.', groups: ['user:write'])]
+    #[Assert\Regex(pattern: '/^[0-9]{1,9}$/', message: 'The phone is not correctly formatted.')]
+    #[Assert\Length(exactly: 9, exactMessage: 'The phone number should have exactly {{ limit }} characters.')]
+    #[Groups(['user:read', 'user:write'])]
     #[ORM\Column(length: 9)]
     private ?string $phoneNumber = null;
 
@@ -115,6 +156,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[Assert\Type(type: 'boolean', message: 'The value {{ value }} is not a valid {{ type }}.')]
     #[Assert\NotNull]
+    #[Groups(['user:update'])]
     #[ORM\Column]
     private ?bool $active = true;
 
@@ -230,18 +272,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function getPlainPassword(): ?string
+    {
+        return $this->plainPassword;
+    }
+
+    public function setPlainPassword(?string $plainPassword): self
+    {
+        $this->plainPassword = $plainPassword;
+
+        return $this;
+    }
+
     /**
      * @see UserInterface
      */
     public function eraseCredentials(): void
     {
         // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
+        $this->plainPassword = null;
     }
 
     public function getFirstName(): ?string
     {
-        return $this->firstName;
+        return ucfirst($this->firstName ?: '');
     }
 
     public function setFirstName(string $firstName): static
@@ -253,7 +307,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getLastName(): ?string
     {
-        return $this->lastName;
+        return ucfirst($this->lastName ?: '');
     }
 
     public function setLastName(string $lastName): static
@@ -301,7 +355,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getAgency(): ?Agency
     {
-        return $this->agency;
+        return $this->agency instanceof Agency ? $this->agency : new Agency();
     }
 
     public function setAgency(?Agency $agency): static

@@ -17,7 +17,7 @@ RUN apk add --no-cache git build-base zsh shadow bash postgresql-dev \
     && echo "memory_limit=512M" >> /usr/local/etc/php/php.ini
 
 COPY "docker/php/app.ini" "$PHP_INI_DIR/conf.d/"
-COPY "docker/php/app.prod.ini" "$PHP_INI_DIR/conf.d/"
+#COPY "docker/php/app.prod.ini" "$PHP_INI_DIR/conf.d/"
 
 # Configure env to accept composer
 # https://getcomposer.org/doc/03-cli.md#composer-allow-superuser

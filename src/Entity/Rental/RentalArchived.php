@@ -39,6 +39,7 @@ class RentalArchived implements RentalInterface
     private ?Car $car = null;
 
     #[ORM\OneToOne(mappedBy: 'rentalArchived', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Delivery $delivery = null;
 
     public static function convertToRentalArchived(Rental $rental): RentalArchived

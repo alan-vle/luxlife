@@ -136,7 +136,7 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
                 'first_name' => 'Bruce',
                 'last_name' => 'Douglas',
                 'email' => 'bruce-douglas@marseille.luxlife.com',
-                'password' => 'ezZ?ez21d!zezda',
+                'password' => 'eAzZ?ez21d!zezda',
                 'address' => $agencyOfMarseille->getAddress(),
                 'birth_date' => '1987/08/24',
                 'agency' => $agencyOfMarseille,
