@@ -37,7 +37,7 @@ use Symfony\Component\Validator\Constraints\PasswordStrength;
 #[GetCollection(security: "is_granted('ROLE_ADMIN')")]
 #[Get(security: "is_granted('ROLE_ADMIN') or object == user or (object.getAgency() and object.getAgency().getDirector() == user)")]
 #[Post(
-    security: "is_granted('ROLE_DIRECTOR')",
+    uriTemplate: '/register',
     validationContext: ['groups' => ['Default', 'user:write']],
     processor: UserPasswordHasher::class,
 )]
