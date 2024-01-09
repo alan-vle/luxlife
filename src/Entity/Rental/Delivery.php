@@ -44,6 +44,10 @@ class Delivery
     #[ORM\JoinColumn(nullable: false)]
     private ?Rental $rental = null;
 
+    #[ORM\OneToOne(inversedBy: 'delivery', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?RentalArchived $rentalArchived = null;
+
     public function __construct()
     {
     }
@@ -99,5 +103,15 @@ class Delivery
         $this->rental = $rental;
 
         return $this;
+    }
+
+    public function setRentalArchived(?RentalArchived $rentalArchived): void
+    {
+        $this->rentalArchived = $rentalArchived;
+    }
+
+    public function getRentalArchived(): ?RentalArchived
+    {
+        return $this->rentalArchived;
     }
 }

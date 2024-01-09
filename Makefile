@@ -118,8 +118,11 @@ entity: # Create an entity
 	@$(SYMFONY) make:entity
 	@sudo chmod 777 -R src/
 
-fixtures:
+fixtures: # Create a fixtures
 	@$(SYMFONY) make:fixtures
+
+listener: # Create an entity
+	@$(SYMFONY) make:listener
 
 load-data: database-drop rm-migrations doctrine-migration doctrine-migrate doctrine-fixtures
 

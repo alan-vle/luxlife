@@ -86,6 +86,21 @@ class Agency
         $this->reviews = new ArrayCollection();
     }
 
+    public function getDirector(): ?User
+    {
+        if (0 === count($this->users)) {
+            return null;
+        }
+
+        foreach ($this->users as $user) {
+            if (in_array('ROLE_DIRECTOR', $user->getRoles())) {
+                return $user;
+            }
+        }
+
+        return null;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -181,7 +196,7 @@ class Agency
         return $this;
     }
 
-    public function isStatus(): ?AgencyStatusEnum
+    public function getStatus(): ?AgencyStatusEnum
     {
         return $this->status;
     }

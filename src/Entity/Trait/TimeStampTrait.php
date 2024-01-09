@@ -6,12 +6,15 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\PrePersist;
 use Doctrine\ORM\Mapping\PreUpdate;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 trait TimeStampTrait
 {
+    #[Groups(['timestamp'])]
     #[Column(type: Types::DATETIME_IMMUTABLE, updatable: false)]
     private ?\DateTimeImmutable $createdAt = null;
 
+    #[Groups(['timestamp'])]
     #[Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
 
