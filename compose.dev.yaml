@@ -63,6 +63,11 @@ services:
       - symfony
     restart: unless-stopped
 
+  mailer:
+    container_name: ${COMPOSE_PROJECT_NAME}_dev_mailer
+    image: schickling/mailcatcher
+    ports: [ 1025, 1080 ]
+
 networks:
   symfony:
     driver: bridge

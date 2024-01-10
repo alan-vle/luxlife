@@ -4,6 +4,10 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    app_env: '%env(APP_ENV)%'
+#    default_no_reply_email: no-reply@example.com
+#    no_reply: "%env(string:default:default_no_reply_email:NO_REPLY)%"
+    react_app_url: "%env(REACT_APP_URL)%"
 
 services:
     # default configuration for services in *this* file
@@ -24,5 +28,12 @@ services:
         bind:
             $processor: '@api_platform.doctrine.orm.state.persist_processor'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+    ##### Inject app env #####
+#    App\EventSubscriber\ExceptionSubscriber:
+#        arguments:
+#            $appEnv: '%env(APP_ENV)%'
+#
+#    App\Service\Mailer\ConfirmEmail:
+#        arguments:
+#            $appEnv: '%env(APP_ENV)%'
+    ##### END #####

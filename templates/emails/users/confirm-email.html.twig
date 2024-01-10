@@ -1,0 +1,17 @@
+{% apply inline_css %}
+    {% apply inky_to_html|inline_css(source('@styles/email/foundation-emails.css')) %}
+        <container>
+            <row class="header">
+                <columns>
+                    <img src="{{ email.image('@images/logo.png') }}" alt="Logo"/> <br /> <br />
+                    <h1>Welcome {{ name_new_user }} !</h1>
+
+                    <p>You signed up with the following email:</p>
+                    <p><code>{{ email.to[0].address }}</code></p>
+                    <br />
+                    <p><button href="{{ url }}">Click here to activate your account</button>(this link is valid 24h.<br /></p> <br />
+                </columns>
+            </row>
+        </container>
+    {% endapply %}
+{% endapply %}

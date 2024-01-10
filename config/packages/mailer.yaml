@@ -1,0 +1,10 @@
+#framework:
+#    mailer:
+#        message_bus: false
+#        envelope:
+#            sender: 'no-reply@luxlife.com'
+#        headers:
+#            From: 'Luxlife <no-reply@luxlife.com>'
+#        transports:
+#            no_reply_dev: '%env(MAILER_DSN_NO_REPLY_DEV)%'
+#            no_reply: '%env(MAILER_DSN_NO_REPLY)%'

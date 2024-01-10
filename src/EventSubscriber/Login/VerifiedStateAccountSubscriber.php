@@ -15,6 +15,13 @@ class VerifiedStateAccountSubscriber implements EventSubscriberInterface
     ) {
     }
 
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            LoginSuccessEvent::class => 'onLoginSuccessEvent',
+        ];
+    }
+
     public function onLoginSuccessEvent(LoginSuccessEvent $event): void
     {
         $user = $event->getUser();
@@ -40,12 +47,5 @@ class VerifiedStateAccountSubscriber implements EventSubscriberInterface
         ];
 
         $event->setResponse(new JsonResponse($data));
-    }
-
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            LoginSuccessEvent::class => 'onLoginSuccessEvent',
-        ];
     }
 }

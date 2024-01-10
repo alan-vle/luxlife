@@ -8,6 +8,13 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class JwtAuthSuccessSubscriber implements EventSubscriberInterface
 {
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            'lexik_jwt_authentication.on_authentication_success' => 'onAuthenticationSuccessResponse',
+        ];
+    }
+
     public function onAuthenticationSuccessResponse(AuthenticationSuccessEvent $event): void
     {
         $user = $event->getUser();
@@ -24,12 +31,5 @@ class JwtAuthSuccessSubscriber implements EventSubscriberInterface
         ];
 
         $event->setData($data);
-    }
-
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            'lexik_jwt_authentication.on_authentication_success' => 'onAuthenticationSuccessResponse',
-        ];
     }
 }

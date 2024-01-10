@@ -29,7 +29,7 @@ use Symfony\Component\Validator\Constraints\PasswordStrength;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`app_user`')]
-#[UniqueEntity('email', message: 'This email is already in used.')]
+#[UniqueEntity('email', message: 'This email is already used.')]
 #[ApiResource(
     normalizationContext: ['groups' => ['user:read', 'identifier', 'timestamp']],
     denormalizationContext: ['groups' => ['user:write', 'user:update']],
