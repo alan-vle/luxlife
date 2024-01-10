@@ -115,8 +115,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
     #[Assert\NotBlank(message: 'The address should not be blank.', groups: ['user:write'])]
-    #[Assert\Regex(pattern: '/^[a-zA-Z0-9\s\-\',]*$/', message: 'The {{ value }} is not a valid address.')]
-    #[Assert\Length(max: 130, maxMessage: 'The address cannot be longer than {{ limit }} characters')]
+    #[Assert\Regex(pattern: '/^[a-zA-Z0-9\s\-\',.]*$/', message: 'The {{ value }} is not a valid address.')]
+    #[Assert\Length(min: 3, max: 130, minMessage: 'The address must be at least {{ limit }} characters long.', maxMessage: 'The address cannot be longer than {{ limit }} characters.')]
     #[Groups(['user:read', 'user:write'])]
     #[ORM\Column(length: 130, nullable: true)]
     private ?string $address = null;
