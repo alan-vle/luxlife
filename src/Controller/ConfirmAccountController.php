@@ -2,8 +2,8 @@
 
 namespace App\Controller;
 
-use App\Entity\User\EmailVerifierToken;
 use App\Entity\User\User;
+use App\Entity\User\Verifier\EmailAbstractVerifierToken;
 use Doctrine\ORM\EntityManagerInterface;
 use Spatie\UrlSigner\Sha256UrlSigner;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,7 +22,7 @@ class ConfirmAccountController extends AbstractController
     }
 
     #[Route('/confirm-email/{uuid}', name: 'app_confirm_email', defaults: ['_signed' => true], methods: ['GET'])]
-    public function confirmEmail(EmailVerifierToken $emailVerifierToken, Request $request, EntityManagerInterface $em): JsonResponse
+    public function confirmEmail(EmailAbstractVerifierToken $emailVerifierToken, Request $request, EntityManagerInterface $em): JsonResponse
     {
         if ($this->security->getUser()) {
             $this->security->logout(false);

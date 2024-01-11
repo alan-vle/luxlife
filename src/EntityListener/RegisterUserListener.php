@@ -3,6 +3,7 @@
 namespace App\EntityListener;
 
 use App\Entity\User\User;
+use App\Entity\User\Verifier\EmailAbstractVerifierToken;
 use App\Service\Mailer\ConfirmEmailService;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,8 +17,8 @@ use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 class RegisterUserListener
 {
     public function __construct(
-        private readonly ConfirmEmailService $confirmEmailService,
-        //        private readonly EntityManagerInterface $em
+        private readonly EntityManagerInterface $em,
+        private readonly ConfirmEmailService $confirmEmailService
     ) {
     }
 
@@ -42,14 +43,24 @@ class RegisterUserListener
         $entityChangeSet = $preUpdateEventArgs->getEntityChangeSet();
 
         if (!array_key_exists('email', $entityChangeSet)) {
-            return;
-        } else {
-            if ($user->isVerifiedEmail()) {
-                $user->setVerifiedEmail(false);
-            }
+            $this->em->getEventManager()->addEventListener(Events::preUpdate, $this);
 
-            // Send the confirmation email
-            $this->confirmEmailService->sendConfirmationEmail($user);
+            return;
         }
+
+        $emailVerifierTokenExists = $this->em->getRepository(EmailAbstractVerifierToken::class)->findOneBy(['user' => $user->getId()]);
+
+        if ($emailVerifierTokenExists) {
+            $this->em->remove($emailVerifierTokenExists);
+        }
+
+        if ($user->isVerifiedEmail()) {
+            $user->setVerifiedEmail(false);
+        }
+        $this->em->flush();
+        $this->em->getEventManager()->addEventListener(Events::preUpdate, $this);
+
+        // Send the confirmation email
+        $this->confirmEmailService->sendConfirmationEmail($user);
     }
 }
