@@ -5,7 +5,7 @@ namespace App\Entity\Rental;
 use App\Entity\Car\Car;
 use App\Entity\Enum\Rental\RentalContractEnum;
 use App\Entity\Enum\Rental\RentalStatusEnum;
-use App\Entity\User;
+use App\Entity\User\User;
 
 interface RentalInterface
 {

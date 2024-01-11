@@ -127,6 +127,8 @@ listener: # Create an entity
 load-data: rm-migrations doctrine-migration doctrine-migrate doctrine-fixtures
 force-load-data: database-drop rm-migrations doctrine-migration doctrine-migrate doctrine-fixtures
 
+mailer-local-test: # Test local mailer
+	@$(SYMFONY) mailer:test someone@example.com
 #	"docker exec -i "pest_avenue_dev_postgres" psql -U ad_pest-avenue -d pest_avenue < sql/fr_city.sql;
 # 	"docker exec -i "pest_avenue_dev_postgres" psql -U ad_pest-avenue -d pest_avenue < sql/pest_dept.sql;"
 ## —— Git 🎵 ———————————————————————————————————————————————————————————————

@@ -30,9 +30,10 @@ class ExceptionSubscriber implements EventSubscriberInterface
         $exception = $event->getThrowable();
 
         if ($exception instanceof HttpException) {
+            $statusCode = 404 === $exception->getStatusCode();
             $data = [
-                'status' => 404,
-                'message' => 'Element not found.',
+                'status' => $statusCode ? 404 : 400,
+                'message' => $statusCode ? 'Nothing found here.' : 'Bad request.',
             ];
         } elseif ($exception instanceof ValidationException) {
             $constraintsList = $exception->getConstraintViolationList();

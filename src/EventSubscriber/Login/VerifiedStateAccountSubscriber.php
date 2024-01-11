@@ -2,7 +2,7 @@
 
 namespace App\EventSubscriber\Login;
 
-use App\Entity\User;
+use App\Entity\User\User;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;

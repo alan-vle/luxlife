@@ -5,7 +5,7 @@ namespace App\DataFixtures;
 use App\DataFixtures\Rental\RentalFixtures;
 use App\Entity\Agency;
 use App\Entity\Review;
-use App\Entity\User;
+use App\Entity\User\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;

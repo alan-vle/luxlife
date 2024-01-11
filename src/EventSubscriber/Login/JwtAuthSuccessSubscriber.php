@@ -2,7 +2,7 @@
 
 namespace App\EventSubscriber\Login;
 
-use App\Entity\User;
+use App\Entity\User\User;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\AuthenticationSuccessEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 

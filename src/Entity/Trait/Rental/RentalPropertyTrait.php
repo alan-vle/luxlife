@@ -6,7 +6,7 @@ use App\Entity\Car\Car;
 use App\Entity\Enum\Rental\RentalContractEnum;
 use App\Entity\Enum\Rental\RentalStatusEnum;
 use App\Entity\Rental\Delivery;
-use App\Entity\User;
+use App\Entity\User\User;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;

@@ -47,6 +47,7 @@ security:
         - { path: ^/docs, roles: PUBLIC_ACCESS } # Allows accessing the Swagger UI docs
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/register, roles: PUBLIC_ACCESS }
+        - { path: ^/confirm-email/[^/]+, roles: PUBLIC_ACCESS}
         - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:

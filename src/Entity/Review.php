@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Entity\Trait\TimeStampTrait;
+use App\Entity\User\User;
 use App\Repository\ReviewRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;

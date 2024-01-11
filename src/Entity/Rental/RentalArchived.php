@@ -4,7 +4,7 @@ namespace App\Entity\Rental;
 
 use App\Entity\Car\Car;
 use App\Entity\Trait\Rental\RentalPropertyTrait;
-use App\Entity\User;
+use App\Entity\User\User;
 use App\Repository\Rental\RentalArchivedRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Column;

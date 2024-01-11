@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\User;
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
@@ -10,11 +10,13 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Entity\Agency;
 use App\Entity\Rental\Rental;
 use App\Entity\Rental\RentalArchived;
+use App\Entity\Review;
 use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
-use App\Repository\UserRepository;
+use App\Repository\User\UserRepository;
 use App\State\UserPasswordHasher;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;

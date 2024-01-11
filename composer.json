@@ -31,11 +31,13 @@
         "symfony/runtime": "7.0.*",
         "symfony/security-bundle": "7.0.*",
         "symfony/serializer": "7.0.*",
+        "symfony/twig-bridge": "7.0.*",
         "symfony/twig-bundle": "7.0.*",
         "symfony/uid": "7.0.*",
         "symfony/validator": "7.0.*",
         "symfony/yaml": "7.0.*",
-        "twig/cssinliner-extra": "^3",
+        "twig/cssinliner-extra": "^3.8",
+        "twig/extra-bundle": "^3.8",
         "twig/inky-extra": "^3"
     },
     "require-dev": {

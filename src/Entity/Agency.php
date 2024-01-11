@@ -6,6 +6,7 @@ use App\Entity\Car\Car;
 use App\Entity\Enum\AgencyStatusEnum;
 use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
+use App\Entity\User\User;
 use App\Repository\AgencyRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
