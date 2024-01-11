@@ -6,7 +6,7 @@ use App\DataFixtures\UserFixtures;
 use App\Entity\Enum\Rental\DeliveryStatusEnum;
 use App\Entity\Rental\Delivery;
 use App\Entity\Rental\Rental;
-use App\Entity\User;
+use App\Entity\User\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;

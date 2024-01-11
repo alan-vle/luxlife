@@ -14,7 +14,7 @@ trait UuidTrait
     #[ApiProperty(identifier: true)]
     #[Assert\Uuid(versions: [4])]
     #[Groups(['identifier'])]
-    #[Column(type: 'uuid')]
+    #[Column(type: 'uuid', unique: true, updatable: false)]
     protected ?Uuid $uuid = null;
 
     public function getUuid(): ?Uuid

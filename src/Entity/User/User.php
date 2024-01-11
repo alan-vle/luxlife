@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\User;
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
@@ -10,11 +10,13 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Entity\Agency;
 use App\Entity\Rental\Rental;
 use App\Entity\Rental\RentalArchived;
+use App\Entity\Review;
 use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
-use App\Repository\UserRepository;
+use App\Repository\User\UserRepository;
 use App\State\UserPasswordHasher;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -29,7 +31,7 @@ use Symfony\Component\Validator\Constraints\PasswordStrength;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`app_user`')]
-#[UniqueEntity('email', message: 'This email is already in used.')]
+#[UniqueEntity('email', message: 'This email is already used.')]
 #[ApiResource(
     normalizationContext: ['groups' => ['user:read', 'identifier', 'timestamp']],
     denormalizationContext: ['groups' => ['user:write', 'user:update']],

@@ -2,7 +2,7 @@
 
 namespace App\EventSubscriber\Login;
 
-use App\Entity\User;
+use App\Entity\User\User;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,6 +13,13 @@ class VerifiedStateAccountSubscriber implements EventSubscriberInterface
     public function __construct(
         private readonly Security $security
     ) {
+    }
+
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            LoginSuccessEvent::class => 'onLoginSuccessEvent',
+        ];
     }
 
     public function onLoginSuccessEvent(LoginSuccessEvent $event): void
@@ -40,12 +47,5 @@ class VerifiedStateAccountSubscriber implements EventSubscriberInterface
         ];
 
         $event->setResponse(new JsonResponse($data));
-    }
-
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            LoginSuccessEvent::class => 'onLoginSuccessEvent',
-        ];
     }
 }

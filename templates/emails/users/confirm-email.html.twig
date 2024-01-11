@@ -1,0 +1,14 @@
+{% apply inline_css %}
+    {% apply inky_to_html|inline_css(source('@styles/email/foundation-emails.css')) %}
+        <container>
+            <row class="header">
+                <columns>
+                    <img src="{{ email.image('@images/logo.png') }}" alt="Logo"/> <br /> <br />
+                    <h1>Welcome to luxlife {{ name_new_user }} !</h1>
+                    <p><button href="{{ url }}">Click here to activate your account</button></p>
+                    <p>You have 24h to confirm your account.<br /></p> <br />
+                </columns>
+            </row>
+        </container>
+    {% endapply %}
+{% endapply %}

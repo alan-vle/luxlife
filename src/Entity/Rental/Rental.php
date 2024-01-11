@@ -6,7 +6,7 @@ use App\Entity\Car\Car;
 use App\Entity\Trait\Rental\RentalPropertyTrait;
 use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
-use App\Entity\User;
+use App\Entity\User\User;
 use App\Repository\Rental\RentalRepository;
 use Doctrine\ORM\Mapping as ORM;
 
