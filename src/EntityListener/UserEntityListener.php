@@ -5,19 +5,27 @@ namespace App\EntityListener;
 use App\Entity\User\User;
 use App\Service\User\TokenValidator\UserEmailVerifierTokenValidator;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
-use Doctrine\ORM\Event\PostUpdateEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
+#[AsEntityListener(event: Events::postPersist, method: 'postPersist', entity: User::class)]
 #[AsEntityListener(event: Events::preUpdate, method: 'preUpdate', entity: User::class)]
 #[AsEntityListener(event: Events::postUpdate, method: 'postUpdate', entity: User::class)]
-// #[AsEntityListener(event: Events::postUpdate, method: 'postUpdate', entity: User::class)]
-class RegisterUserListener
+class UserEntityListener
 {
     public function __construct(
         private readonly UserEmailVerifierTokenValidator $emailVerifierTokenValidator
     ) {
+    }
+
+    public function postPersist(User $user): void
+    {
+        if ($user->isVerifiedEmail()) {
+            return;
+        }
+
+        $this->emailVerifierTokenValidator::isAlreadyCreated($user);
     }
 
     /**
@@ -36,12 +44,8 @@ class RegisterUserListener
         }
     }
 
-    public function postUpdate(User $user, PostUpdateEventArgs $postUpdateEventArgs): void
+    public function postUpdate(User $user): void
     {
-        if ($user->isVerifiedEmail()) {
-            return;
-        }
-
-        $this->emailVerifierTokenValidator::isAlreadyCreated($user);
+        $this->postPersist($user);
     }
 }
