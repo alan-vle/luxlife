@@ -16,7 +16,7 @@ abstract class AbstractVerifierToken
     #[ORM\Column]
     protected ?\DateTimeImmutable $expiresAt = null;
 
-    abstract public function getId();
+    abstract public function getId(): ?int;
 
     public function getUser(): ?User
     {
@@ -30,7 +30,7 @@ abstract class AbstractVerifierToken
         return $this;
     }
 
-    public function getExpiresAt(): \DateTimeImmutable
+    public function getExpiresAt(): ?\DateTimeImmutable
     {
         return $this->expiresAt;
     }

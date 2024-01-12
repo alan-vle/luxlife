@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: EmailVerifierTokenRepository::class)]
 // #[UniqueEntity('umessage: 'Link already sent.')]
 #[ORM\HasLifecycleCallbacks]
-final class EmailAbstractVerifierToken extends AbstractVerifierToken
+final class EmailVerifierToken extends AbstractVerifierToken
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]

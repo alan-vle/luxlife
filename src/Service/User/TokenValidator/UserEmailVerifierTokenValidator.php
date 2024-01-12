@@ -3,40 +3,42 @@
 namespace App\Service\User\TokenValidator;
 
 use App\Entity\User\User;
-use App\Entity\User\Verifier\EmailAbstractVerifierToken;
+use App\Entity\User\Verifier\EmailVerifierToken;
 use App\Service\Mailer\ConfirmEmailService;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Response;
 
 class UserEmailVerifierTokenValidator implements UserVerifierTokenValidatorInterface
 {
     private static EntityManagerInterface $em;
+    private static ConfirmEmailService $confirmEmailService;
 
-    public function __construct(EntityManagerInterface $em)
-    {
+    public function __construct(
+        EntityManagerInterface $em,
+        ConfirmEmailService $confirmEmailService
+    ) {
         self::$em = $em;
+        self::$confirmEmailService = $confirmEmailService;
     }
 
     public static function isAlreadyCreated(User $user): void
     {
-        $emailVerifierTokenExists = self::$em->getRepository(EmailAbstractVerifierToken::class)->findOneBy(['user' => $user->getId()]);
+        $emailVerifierToken = self::isExists($user->getId());
 
-        if (!$emailVerifierTokenExists) {
-            return;
+        if ($emailVerifierToken instanceof EmailVerifierToken) {
+            if ($emailVerifierToken->getEmail() !== $user->getEmail()) {
+                self::$em->remove($emailVerifierToken);
+                self::$em->flush();
+            } else {
+                if (self::isStillValid($emailVerifierToken)) {
+                    return;
+                }
+            }
         }
 
-        if (!$emailVerifierTokenExists instanceof EmailAbstractVerifierToken) {
-            throw new \HttpException(Response::HTTP_NOT_FOUND);
-        }
-
-        if (self::isStillValid($emailVerifierTokenExists)) {
-            return;
-        }
-
-        ConfirmEmailService::sendConfirmationEmail($user);
+        self::$confirmEmailService::sendConfirmationEmail($user);
     }
 
-    public static function isStillValid(EmailAbstractVerifierToken $emailVerifierToken): bool
+    public static function isStillValid(EmailVerifierToken $emailVerifierToken): bool
     {
         if (!$emailVerifierToken->isExpired()) {
             return true;
@@ -46,5 +48,10 @@ class UserEmailVerifierTokenValidator implements UserVerifierTokenValidatorInter
         self::$em->flush();
 
         return false;
+    }
+
+    public static function isExists(?int $userId): ?EmailVerifierToken
+    {
+        return self::$em->getRepository(EmailVerifierToken::class)->findOneBy(['user' => $userId]);
     }
 }

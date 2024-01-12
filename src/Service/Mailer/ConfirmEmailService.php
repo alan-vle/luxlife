@@ -3,12 +3,11 @@
 namespace App\Service\Mailer;
 
 use App\Entity\User\User;
-use App\Entity\User\Verifier\EmailAbstractVerifierToken;
+use App\Entity\User\Verifier\EmailVerifierToken;
 use App\Service\SignedUrl\UrlSignedCreator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\NotificationEmail;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
@@ -35,7 +34,7 @@ class ConfirmEmailService
     public static function sendConfirmationEmail(User $user): void
     {
         $userEmail = $user->getEmail() ?: '';
-        $emailVerifierToken = new EmailAbstractVerifierToken();
+        $emailVerifierToken = new EmailVerifierToken();
 
         $expirationDate = (new \DateTime('now'))->add(new \DateInterval('P1D'));
         // Set new email verifier token with user and email
@@ -44,9 +43,7 @@ class ConfirmEmailService
             ->setEmail($userEmail)
             ->setExpiresAt($expirationDate->format('Y-m-d H:i'))
         ;
-        if (!self::$em) {
-            throw new \HttpException(Response::HTTP_BAD_REQUEST);
-        }
+
         self::$em->persist($emailVerifierToken);
         self::$em->flush();
 

@@ -3,36 +3,21 @@
 namespace App\EntityListener;
 
 use App\Entity\User\User;
-use App\Entity\User\Verifier\EmailAbstractVerifierToken;
-use App\Service\Mailer\ConfirmEmailService;
+use App\Service\User\TokenValidator\UserEmailVerifierTokenValidator;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Event\PostPersistEventArgs;
+use Doctrine\ORM\Event\PostUpdateEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
-#[AsEntityListener(event: Events::postPersist, method: 'postPersist', entity: User::class)]
 #[AsEntityListener(event: Events::preUpdate, method: 'preUpdate', entity: User::class)]
+#[AsEntityListener(event: Events::postUpdate, method: 'postUpdate', entity: User::class)]
+// #[AsEntityListener(event: Events::postUpdate, method: 'postUpdate', entity: User::class)]
 class RegisterUserListener
 {
     public function __construct(
-        private readonly EntityManagerInterface $em,
-        private readonly ConfirmEmailService $confirmEmailService
+        private readonly UserEmailVerifierTokenValidator $emailVerifierTokenValidator
     ) {
-    }
-
-    /**
-     * @throws TransportExceptionInterface
-     */
-    public function postPersist(User $user, PostPersistEventArgs $postPersistEventArgs): void
-    {
-        if ($user->isVerifiedEmail()) {
-            return;
-        }
-
-        // Send the confirmation email
-        $this->confirmEmailService->sendConfirmationEmail($user);
     }
 
     /**
@@ -40,27 +25,23 @@ class RegisterUserListener
      */
     public function preUpdate(User $user, PreUpdateEventArgs $preUpdateEventArgs): void
     {
+        // Get field changed of user entity
         $entityChangeSet = $preUpdateEventArgs->getEntityChangeSet();
-
         if (!array_key_exists('email', $entityChangeSet)) {
-            $this->em->getEventManager()->addEventListener(Events::preUpdate, $this);
-
             return;
-        }
-
-        $emailVerifierTokenExists = $this->em->getRepository(EmailAbstractVerifierToken::class)->findOneBy(['user' => $user->getId()]);
-
-        if ($emailVerifierTokenExists) {
-            $this->em->remove($emailVerifierTokenExists);
         }
 
         if ($user->isVerifiedEmail()) {
             $user->setVerifiedEmail(false);
         }
-        $this->em->flush();
-        $this->em->getEventManager()->addEventListener(Events::preUpdate, $this);
+    }
 
-        // Send the confirmation email
-        $this->confirmEmailService->sendConfirmationEmail($user);
+    public function postUpdate(User $user, PostUpdateEventArgs $postUpdateEventArgs): void
+    {
+        if ($user->isVerifiedEmail()) {
+            return;
+        }
+
+        $this->emailVerifierTokenValidator::isAlreadyCreated($user);
     }
 }
