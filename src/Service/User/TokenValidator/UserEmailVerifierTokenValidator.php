@@ -20,6 +20,11 @@ class UserEmailVerifierTokenValidator implements UserVerifierTokenValidatorInter
         self::$confirmEmailService = $confirmEmailService;
     }
 
+    //    public static function isValid(EmailVerifierToken $emailVerifierToken, User $user)
+    //    {
+    //
+    //    }
+
     public static function isAlreadyCreated(User $user): void
     {
         $emailVerifierToken = self::isExists($user->getId());

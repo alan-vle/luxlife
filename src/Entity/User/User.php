@@ -44,12 +44,12 @@ use Symfony\Component\Validator\Constraints\PasswordStrength;
     processor: UserPasswordHasher::class,
 )]
 #[Put(
-    security: "is_granted('ROLE_ADMIN') or object == user or object.getAgency().getDirector() == user",
+    security: "is_granted('ROLE_ADMIN') or object == user or (object.getAgency() and object.getAgency().getDirector() == user)",
     //    securityPostDenormalize: "is_granted('ROLE_ADMIN') or (object == user and previous_object == user) or (object.getAgency().getDirector() == user and previous_object == object.getAgency().getDirector())",
     processor: UserPasswordHasher::class,
 )]
 #[Patch(
-    security: "is_granted('ROLE_ADMIN') or object == user or object.getAgency().getDirector() == user",
+    security: "is_granted('ROLE_ADMIN') or object == user or (object.getAgency() and object.getAgency().getDirector() == user)",
     processor: UserPasswordHasher::class
 )]
 #[Delete(security: "is_granted('ROLE_ADMIN')")]
@@ -118,7 +118,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
     #[Assert\NotBlank(message: 'The address should not be blank.', groups: ['user:write'])]
     #[Assert\Regex(pattern: '/^[a-zA-Z0-9\s\-\',.]*$/', message: 'The {{ value }} is not a valid address.')]
-    #[Assert\Length(min: 3, max: 130, minMessage: 'The address must be at least {{ limit }} characters long.', maxMessage: 'The address cannot be longer than {{ limit }} characters.')]
+    #[Assert\Length(
+        min: 3, max: 130,
+        minMessage: 'The address must be at least {{ limit }} characters long.',
+        maxMessage: 'The address cannot be longer than {{ limit }} characters.'
+    )]
     #[Groups(['user:read', 'user:write'])]
     #[ORM\Column(length: 130, nullable: true)]
     private ?string $address = null;
@@ -134,7 +138,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var array<string> $roles
      */
     #[Assert\Type(type: 'array', message: 'The value {{ value }} is not a valid {{ type }}.')]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:read', 'admin-director:write'])]
     #[ORM\Column]
     private array $roles = [];
 
@@ -162,6 +166,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?bool $active = true;
 
+    #[ApiProperty(
+        readableLink: false,
+        writableLink: false,
+        security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_DIRECTOR') or is_granted('ROLE_AGENT')"
+    )]
+    #[Groups(['user:read', 'admin-director:write'])]
     #[ORM\ManyToOne(inversedBy: 'users')]
     private ?Agency $agency = null;
 
@@ -194,6 +204,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\OneToMany(mappedBy: 'employee', targetEntity: RentalArchived::class)]
     private Collection $rentalsArchivedAsEmployee;
+
+    private bool $fixtures = false;
 
     public function __construct()
     {
@@ -239,7 +251,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $roles = $this->roles;
 
         // add the prefix to all role names
-        $roles = array_map(fn ($role) => 'ROLE_'.$role, $roles);
+        $roles = array_map(fn ($role) => 'ROLE_'.strtoupper($role), $roles);
 
         // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
@@ -254,6 +266,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function setRoles(array $roles): static
     {
+        //        if(!$roles) {
+        //            $roles = 'CUSTOMER';
+        //        }
+
         $this->roles = $roles;
 
         return $this;
@@ -357,7 +373,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getAgency(): ?Agency
     {
-        return $this->agency instanceof Agency ? $this->agency : new Agency();
+        return $this->agency;
+        //        return $this->agency instanceof Agency ? $this->agency : new Agency();
     }
 
     public function setAgency(?Agency $agency): static
@@ -549,6 +566,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $rentalsArchivedAsEmployee->setEmployee(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isFixtures(): bool
+    {
+        return $this->fixtures;
+    }
+
+    public function setFixtures(bool $fixtures): static
+    {
+        $this->fixtures = $fixtures;
 
         return $this;
     }

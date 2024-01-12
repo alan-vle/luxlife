@@ -48,6 +48,8 @@ security:
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/register, roles: PUBLIC_ACCESS }
         - { path: ^/confirm-email/[^/]+, roles: PUBLIC_ACCESS}
+        - { path: ^/agencies/new, roles: IS_AUTHENTICATED_FULLY}
+        - { path: ^/agencies, roles: PUBLIC_ACCESS}
         - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:

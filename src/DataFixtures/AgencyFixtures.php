@@ -20,8 +20,8 @@ class AgencyFixtures extends Fixture
         $agency->setCity('Marseille, 13013');
         $agency->setEmail('contact-marseille@luxlife.com');
         $agency->setOpeningHours(new \DateTime('08:00'));
-        $agency->setClosingHours(new \DateTime('08:00'));
-        $agency->setStatus(AgencyStatusEnum::OPEN);
+        $agency->setClosingHours(new \DateTime('21:00'));
+        $agency->setStatus(AgencyStatusEnum::ACTIVE);
 
         $this->addReference(self::AGENCY_MARSEILLE_REFERENCE, $agency);
 

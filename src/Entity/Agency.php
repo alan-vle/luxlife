@@ -2,6 +2,14 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Entity\Car\Car;
 use App\Entity\Enum\AgencyStatusEnum;
 use App\Entity\Trait\TimeStampTrait;
@@ -13,26 +21,47 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AgencyRepository::class)]
 #[ORM\Table(name: '`agency`')]
-#[UniqueEntity('email', message: 'This email is already in used.')]
+#[UniqueEntity('email', message: 'This agency email is already used.')]
+#[ApiResource(
+    normalizationContext: ['groups' => ['agency:read', 'identifier']],
+    denormalizationContext: ['groups' => ['agency:write', 'agency:update']],
+)]
+#[GetCollection]
+#[Get(
+    normalizationContext: ['groups' => ['agency:read', 'agency-review:read']]
+)]
+#[Post(
+    uriTemplate: '/agencies/new',
+    security: "is_granted('ROLE_ADMIN')",
+    validationContext: ['groups' => ['Default', 'agency:write']]
+)]
+#[Put(
+    security: "is_granted('ROLE_ADMIN')",
+    //    securityPostDenormalize: "is_granted('ROLE_ADMIN') or (object == user and previous_object == user)
+    // or (object.getDirector() == user and previous_object == object.getDirector())",
+)]
+#[Patch(security: "is_granted('ROLE_ADMIN') or object.getDirector() == user")]
+#[Delete(security: "is_granted('ROLE_ADMIN')")]
 #[ORM\HasLifecycleCallbacks]
 class Agency
 {
     use UuidTrait;
     use TimeStampTrait;
 
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ApiProperty(identifier: false)]
+    #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     private ?int $id = null;
 
     #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
     #[Assert\NotBlank(message: 'The address should not be blank.')]
     #[Assert\Regex(pattern: '/^[a-zA-Z0-9\s\-\',]*$/', message: 'The {{ value }} is not a valid address.')]
     #[Assert\Length(max: 130, maxMessage: 'The address cannot be longer than {{ limit }} characters')]
+    #[Groups(['agency:read', 'agency:write'])]
     #[ORM\Column(length: 130)]
     private ?string $address = null;
 
@@ -40,43 +69,58 @@ class Agency
     #[Assert\NotBlank(message: 'The city should not be blank.')]
     #[Assert\Regex(pattern: '/^[a-zA-Z0-9\s\-\',]*$/', message: 'The {{ value }} is not a valid city.')]
     #[Assert\Length(max: 50, maxMessage: 'The address cannot be longer than {{ limit }} characters')]
+    #[Groups(['agency:read', 'agency:write'])]
     #[ORM\Column(length: 50)]
     private ?string $city = null;
 
     #[Assert\Email(message: 'The email {{ value }} is not a valid email.')]
+    #[Assert\Regex(pattern: '/@luxlife\.com$/i', message: 'The e-mail address must belong to luxlife.')]
     #[Assert\NotBlank(message: 'The email should not be blank.')]
     #[Assert\Length(max: 180, maxMessage: 'The email cannot be longer than {{ limit }} characters.')]
+    #[Groups(['agency:read', 'agency:write'])]
     #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;
 
-    #[Assert\Time, Assert\NotBlank]
+    #[Assert\Type(type: 'object', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotBlank]
+    #[Groups(['agency:read', 'agency:write'])]
     #[ORM\Column(type: Types::TIME_MUTABLE)]
     private ?\DateTimeInterface $openingHours = null;
 
-    #[Assert\Time, Assert\NotBlank]
+    #[Assert\Type(type: 'object', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotBlank]
+    #[Groups(['agency:read', 'agency:write'])]
     #[ORM\Column(type: Types::TIME_MUTABLE)]
     private ?\DateTimeInterface $closingHours = null;
 
     /**
      * @var ArrayCollection<int, User> $users
      */
+    #[ApiProperty(readableLink: false, writableLink: false)]
+    #[Groups(['agency-admin:read', 'agency-director:read'])]
     #[ORM\OneToMany(mappedBy: 'agency', targetEntity: User::class)]
     private Collection $users;
 
-    #[Assert\Type(type: 'integer', message: 'The value {{ value }} is not a valid {{ type }}.')]
-    #[Assert\NotNull]
+    #[Groups(['agency:read', 'agency:write'])]
     #[ORM\Column(type: Types::SMALLINT, enumType: AgencyStatusEnum::class)]
     private ?AgencyStatusEnum $status = null;
+
+    #[Groups(['agency:read'])]
+    private bool $isOpen = false;
 
     /**
      * @var ArrayCollection<int, Car> $cars
      */
+    #[ApiProperty(readableLink: false, writableLink: false)]
+    #[Groups(['agency-admin:read', 'agency-director:read'])]
     #[ORM\OneToMany(mappedBy: 'agency', targetEntity: Car::class, orphanRemoval: true)]
     private Collection $cars;
 
     /**
      * @var ArrayCollection<int, Review> $reviews
      */
+    #[ApiProperty(readableLink: false, writableLink: false)]
+    #[Groups(['agency-review:read'])]
     #[ORM\OneToMany(mappedBy: 'agency', targetEntity: Review::class, orphanRemoval: true)]
     private Collection $reviews;
 
@@ -143,9 +187,11 @@ class Agency
         return $this;
     }
 
-    public function getOpeningHours(): ?\DateTimeInterface
+    public function getOpeningHours(): string
     {
-        return $this->openingHours;
+        $openingHours = $this->openingHours instanceof \DateTimeInterface ? $this->openingHours : false;
+
+        return $openingHours ? $openingHours->format('H:i') : (new \DateTime())->format('H:i');
     }
 
     public function setOpeningHours(\DateTimeInterface $openingHours): static
@@ -155,9 +201,11 @@ class Agency
         return $this;
     }
 
-    public function getClosingHours(): ?\DateTimeInterface
+    public function getClosingHours(): string
     {
-        return $this->closingHours;
+        $closingHours = $this->closingHours instanceof \DateTimeInterface ? $this->closingHours : false;
+
+        return $closingHours ? $closingHours->format('H:i') : (new \DateTime())->format('H:i');
     }
 
     public function setClosingHours(\DateTimeInterface $closingHours): static
@@ -197,9 +245,18 @@ class Agency
         return $this;
     }
 
-    public function getStatus(): ?AgencyStatusEnum
+    /**
+     * Get status name.
+     */
+    public function getStatus(): ?string
     {
-        return $this->status;
+        if (!$this->status instanceof AgencyStatusEnum) {
+            throw new \Exception('', 500);
+        }
+        // First letter in uppercase, the rest in lowercase and replace underscore by space
+        $normalizedStatusName = fn () => ucfirst(strtolower(str_replace('_', ' ', $this->status->name)));
+
+        return ucfirst(strtolower($normalizedStatusName()));
     }
 
     public function setStatus(AgencyStatusEnum $status): static
@@ -207,6 +264,21 @@ class Agency
         $this->status = $status;
 
         return $this;
+    }
+
+    public function getIsOpen(): bool
+    {
+        if (AgencyStatusEnum::ACTIVE !== $this->status) {
+            return $this->isOpen = false;
+        }
+
+        $currentTime = (new \DateTime())->format('H:i');
+
+        if ($currentTime >= $this->getOpeningHours() && $currentTime < $this->getClosingHours()) {
+            $this->isOpen = true;
+        }
+
+        return $this->isOpen;
     }
 
     /**

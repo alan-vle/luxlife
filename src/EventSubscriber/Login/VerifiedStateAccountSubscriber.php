@@ -42,7 +42,15 @@ class VerifiedStateAccountSubscriber implements EventSubscriberInterface
         // Check if a user token verifier entity has already created for this user
         $this->emailTokenValidator::isAlreadyCreated($user);
 
-        $data = [
+        $event->setResponse(new JsonResponse($this->normalizeStateData($user)));
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function normalizeStateData(User $user): array
+    {
+        return [
             'status' => 'error',
             'message' => match (false) {
                 $user->isActive() => 'Your account is deactivate.',
@@ -51,7 +59,5 @@ class VerifiedStateAccountSubscriber implements EventSubscriberInterface
                 default => 'An error occurred, try again later.'
             },
         ];
-
-        $event->setResponse(new JsonResponse($data));
     }
 }

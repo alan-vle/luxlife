@@ -28,19 +28,14 @@ class ExceptionSubscriber implements EventSubscriberInterface
     public function onKernelException(ExceptionEvent $event): void
     {
         $exception = $event->getThrowable();
-
         if ($exception instanceof HttpException) {
-            $statusCode = 404 === $exception->getStatusCode();
-            $data = [
-                'status' => $statusCode ? 404 : 400,
-                'message' => $statusCode ? 'Nothing found here.' : 'Bad request.',
-            ];
+            $data = $this->normalizeHttpCode($exception);
         } elseif ($exception instanceof ValidationException) {
             $constraintsList = $exception->getConstraintViolationList();
 
             $data = [
                 'status' => 400,
-                'constraints' => $this->constraintsErrorFormatter($constraintsList),
+                'constraints' => $this->normalizeConstraintsValidation($constraintsList),
             ];
         } else {
             $data = [
@@ -53,9 +48,41 @@ class ExceptionSubscriber implements EventSubscriberInterface
     }
 
     /**
+     * Check http code to return a formatted array.
+     * Status: 400, message: Bad Request.
+     * Status: 403, message: Access denied.
+     * Default : 404, message: Nothing found here.
+     *
+     * @return array<string, int|string>
+     */
+    private function normalizeHttpCode(HttpException $exception): array
+    {
+        $statusCode =
+            function () use ($exception): int {
+                $statusCode = $exception->getStatusCode();
+
+                if (400 === $statusCode || 403 === $statusCode) {
+                    return $statusCode;
+                }
+
+                return 404;
+            }
+        ;
+
+        return [
+            'status' => $statusCode(),
+            'message' => match ($statusCode()) {
+                400 => 'Bad Request.',
+                403 => 'Access denied.',
+                default => 'Nothing found here.'
+            },
+        ];
+    }
+
+    /**
      * @return array<int<0, max>, array<string, string|\Stringable>>
      */
-    private function constraintsErrorFormatter(ConstraintViolationListInterface $constraintsList): array
+    private function normalizeConstraintsValidation(ConstraintViolationListInterface $constraintsList): array
     {
         $formattedConstraintsList = [];
 
