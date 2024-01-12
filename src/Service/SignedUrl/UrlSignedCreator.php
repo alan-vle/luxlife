@@ -23,10 +23,13 @@ class UrlSignedCreator
         //        return self::$urlSigner->sign($url, $expiration);
     }
 
-    public static function getSignedUrlBySpatieBundle(string $url, string $expirationDate): string
+    public static function getSignedUrlBySpatieBundle(string $url, \DateTime|string $expirationDate): string
     {
+        if (!$expirationDate instanceof \DateTime) {
+            $expirationDate = (new \DateTime('now'))->add(new \DateInterval($expirationDate));
+        }
+
         $urlSigner = new Sha256UrlSigner('A15EZEQS257854EZASDZZNJK');
-        $expirationDate = (new \DateTime('now'))->add(new \DateInterval($expirationDate));
 
         return $urlSigner->sign($url, $expirationDate);
     }

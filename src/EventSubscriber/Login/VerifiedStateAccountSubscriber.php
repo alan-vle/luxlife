@@ -3,6 +3,7 @@
 namespace App\EventSubscriber\Login;
 
 use App\Entity\User\User;
+use App\Service\User\TokenValidator\UserEmailVerifierTokenValidator;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -11,7 +12,8 @@ use Symfony\Component\Security\Http\Event\LoginSuccessEvent;
 class VerifiedStateAccountSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly Security $security
+        private readonly Security $security,
+        private readonly UserEmailVerifierTokenValidator $emailTokenValidator
     ) {
     }
 
@@ -30,11 +32,15 @@ class VerifiedStateAccountSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if ($user->isVerifiedEmail() && $user->isVerifiedPhoneNumber()) {
+        if ($user->isVerifiedEmail() || $user->isVerifiedPhoneNumber()) {
             return;
         }
+
         $event->stopPropagation();
         $this->security->logout(false);
+
+        // Check if a user token verifier entity has already created for this user
+        $this->emailTokenValidator::isAlreadyCreated($user);
 
         $data = [
             'status' => 'error',

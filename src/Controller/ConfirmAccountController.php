@@ -2,8 +2,8 @@
 
 namespace App\Controller;
 
-use App\Entity\User\EmailVerifierToken;
 use App\Entity\User\User;
+use App\Entity\User\Verifier\EmailVerifierToken;
 use Doctrine\ORM\EntityManagerInterface;
 use Spatie\UrlSigner\Sha256UrlSigner;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

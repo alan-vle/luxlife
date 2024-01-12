@@ -2,8 +2,8 @@
 
 namespace App\Service\Mailer;
 
-use App\Entity\User\EmailVerifierToken;
 use App\Entity\User\User;
+use App\Entity\User\Verifier\EmailVerifierToken;
 use App\Service\SignedUrl\UrlSignedCreator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\NotificationEmail;
@@ -15,13 +15,15 @@ use Symfony\Component\Mime\Address;
 class ConfirmEmailService
 {
     private static MailerInterface $mailer;
+    private static EntityManagerInterface $em;
     private static string $reactAppUrl;
 
     public function __construct(
+        EntityManagerInterface $em,
         MailerInterface $mailer,
-        private readonly EntityManagerInterface $em,
         #[Autowire('%react_app_url%')] string $reactAppUrl,
     ) {
+        self::$em = $em;
         self::$mailer = $mailer;
         self::$reactAppUrl = $reactAppUrl;
     }
@@ -29,23 +31,27 @@ class ConfirmEmailService
     /**
      * @throws TransportExceptionInterface
      */
-    public function sendConfirmationEmail(User $user): void
+    public static function sendConfirmationEmail(User $user): void
     {
-        $emailVerifierToken = new EmailVerifierToken();
         $userEmail = $user->getEmail() ?: '';
+        $emailVerifierToken = new EmailVerifierToken();
 
+        $expirationDate = (new \DateTime('now'))->add(new \DateInterval('P1D'));
+        // Set new email verifier token with user and email
         $emailVerifierToken
             ->setUser($user)
             ->setEmail($userEmail)
+            ->setExpiresAt($expirationDate->format('Y-m-d H:i'))
         ;
 
-        $this->em->persist($emailVerifierToken);
-        $this->em->flush();
+        self::$em->persist($emailVerifierToken);
+        self::$em->flush();
 
         $url = self::$reactAppUrl.'/confirm-email/'.$emailVerifierToken->getUuid();
 
-        // Create a signed url for allow access to confirm email url for the new user
-        $signedUrl = UrlSignedCreator::getSignedUrlBySpatieBundle($url, 'P1D');
+        // Create a signed url for allow access to confirm email controller
+        $signedUrl = UrlSignedCreator::getSignedUrlBySpatieBundle($url, $expirationDate);
+
         // Send an email for new user
         $email = (new NotificationEmail())
             ->to(new Address($userEmail))

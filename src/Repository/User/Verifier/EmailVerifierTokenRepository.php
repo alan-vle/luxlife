@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repository\User;
+namespace App\Repository\User\Verifier;
 
-use App\Entity\User\EmailVerifierToken;
+use App\Entity\User\Verifier\EmailVerifierToken;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
