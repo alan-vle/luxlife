@@ -28,8 +28,9 @@ class ExceptionSubscriber implements EventSubscriberInterface
     public function onKernelException(ExceptionEvent $event): void
     {
         $exception = $event->getThrowable();
+
         if ($exception instanceof HttpException) {
-            $data = $this->normalizeHttpCode($exception);
+            $data = $this->normalizeHttpError($exception);
         } elseif ($exception instanceof ValidationException) {
             $constraintsList = $exception->getConstraintViolationList();
 
@@ -55,7 +56,7 @@ class ExceptionSubscriber implements EventSubscriberInterface
      *
      * @return array<string, int|string>
      */
-    private function normalizeHttpCode(HttpException $exception): array
+    private function normalizeHttpError(HttpException $exception): array
     {
         $statusCode =
             function () use ($exception): int {

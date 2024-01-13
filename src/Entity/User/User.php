@@ -173,6 +173,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     )]
     #[Groups(['user:read', 'admin-director:write'])]
     #[ORM\ManyToOne(inversedBy: 'users')]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
     private ?Agency $agency = null;
 
     /**

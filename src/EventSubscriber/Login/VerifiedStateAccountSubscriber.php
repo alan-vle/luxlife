@@ -39,16 +39,18 @@ class VerifiedStateAccountSubscriber implements EventSubscriberInterface
         $event->stopPropagation();
         $this->security->logout(false);
 
-        // Check if a user token verifier entity has already created for this user
-        $this->emailTokenValidator::isAlreadyCreated($user);
+        // Check if a user email token has been generated
+        $this->emailTokenValidator->isAlreadyGenerated($user);
 
-        $event->setResponse(new JsonResponse($this->normalizeStateData($user)));
+        $event->setResponse(new JsonResponse($this->normalizeBadAccountStateData($user)));
     }
 
     /**
+     * Normalize data depending on state of account.
+     *
      * @return array<string, string>
      */
-    private function normalizeStateData(User $user): array
+    private function normalizeBadAccountStateData(User $user): array
     {
         return [
             'status' => 'error',
@@ -56,7 +58,7 @@ class VerifiedStateAccountSubscriber implements EventSubscriberInterface
                 $user->isActive() => 'Your account is deactivate.',
                 $user->isVerifiedEmail() => 'Your email is not verified.',
                 $user->isVerifiedPhoneNumber() => 'Your phone number is not verified.',
-                default => 'An error occurred, try again later.'
+                default => 'Something is wrong, try again later.'
             },
         ];
     }

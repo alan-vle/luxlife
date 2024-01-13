@@ -4,13 +4,11 @@ namespace App\EntityListener;
 
 use App\Entity\User\User;
 use App\Service\User\TokenValidator\UserEmailVerifierTokenValidator;
+use App\Service\User\UserUtils;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
-use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 #[AsEntityListener(event: Events::prePersist, method: 'prePersist', entity: User::class)]
@@ -21,7 +19,7 @@ class UserEntityListener
 {
     public function __construct(
         private readonly UserEmailVerifierTokenValidator $emailVerifierTokenValidator,
-        private readonly Security $security
+        private readonly UserUtils $userUtils
     ) {
     }
 
@@ -31,9 +29,9 @@ class UserEntityListener
             return;
         }
 
-        $this->checkRoles($user);
+        $this->userUtils->defineRoleAccordingToCase($user);
 
-        $this->checkAgencyOwner($user);
+        $this->userUtils->isAdminOrAgencyDirector($user);
     }
 
     public function postPersist(User $user): void
@@ -42,7 +40,7 @@ class UserEntityListener
             return;
         }
 
-        $this->emailVerifierTokenValidator::isAlreadyCreated($user);
+        $this->emailVerifierTokenValidator->isAlreadyGenerated($user);
     }
 
     /**
@@ -50,21 +48,17 @@ class UserEntityListener
      */
     public function preUpdate(User $user, PreUpdateEventArgs $preUpdateEventArgs): void
     {
-        if ($user->isFixtures()) {
-            return;
-        }
-
-        $this->checkRoles($user);
-
         // Get field changed of user entity
         $entityChangeSet = $preUpdateEventArgs->getEntityChangeSet();
 
-        if (!array_key_exists('email', $entityChangeSet)) {
-            return;
-        }
-
-        if ($user->isVerifiedEmail()) {
-            $user->setVerifiedEmail(false);
+        if (array_key_exists('email', $entityChangeSet)) {
+            // if email has changed, set verified email to false before updating
+            // To let regeneration of email token after updating
+            if ($user->isVerifiedEmail()) {
+                $user->setVerifiedEmail(false);
+            }
+        } elseif (array_key_exists('roles', $entityChangeSet)) {
+            $this->userUtils->updateRoleAccordingToCase($user);
         }
     }
 
@@ -75,40 +69,5 @@ class UserEntityListener
         }
 
         $this->postPersist($user);
-    }
-
-    /**
-     * Check roles submitted by the user.
-     */
-    private function checkRoles(User $user): void
-    {
-        if (!$this->security->getUser()) {
-            $user->setRoles(['customer']);
-        } elseif ($this->security->isGranted('ROLE_ADMIN')) {
-            return;
-        } elseif ($this->security->isGranted('ROLE_DIRECTOR')) {
-            $user->setRoles(['agent']);
-        } else {
-            throw new HttpException(Response::HTTP_BAD_REQUEST);
-        }
-    }
-
-    private function checkAgencyOwner(User $user): void
-    {
-        if (!$user->getAgency()) {
-            return;
-        }
-
-        if (
-            $this->security->isGranted('ROLE_ADMIN')
-            || (
-                $this->security->isGranted('ROLE_DIRECTOR')
-                && $user->getAgency()->getDirector() === $this->security->getUser()
-            )
-        ) {
-            return;
-        } else {
-            throw new HttpException(Response::HTTP_BAD_REQUEST);
-        }
     }
 }

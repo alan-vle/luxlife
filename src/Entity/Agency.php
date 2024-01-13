@@ -42,8 +42,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[Put(
     security: "is_granted('ROLE_ADMIN')",
-    //    securityPostDenormalize: "is_granted('ROLE_ADMIN') or (object == user and previous_object == user)
-    // or (object.getDirector() == user and previous_object == object.getDirector())",
+    securityPostDenormalize: "is_granted('ROLE_ADMIN')"
 )]
 #[Patch(security: "is_granted('ROLE_ADMIN') or object.getDirector() == user")]
 #[Delete(security: "is_granted('ROLE_ADMIN')")]

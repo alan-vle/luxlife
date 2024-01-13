@@ -9,15 +9,10 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class UserEmailVerifierTokenValidator implements UserVerifierTokenValidatorInterface
 {
-    private static EntityManagerInterface $em;
-    private static ConfirmEmailService $confirmEmailService;
-
     public function __construct(
-        EntityManagerInterface $em,
-        ConfirmEmailService $confirmEmailService
+        private readonly EntityManagerInterface $em,
+        private readonly ConfirmEmailService $confirmEmailService
     ) {
-        self::$em = $em;
-        self::$confirmEmailService = $confirmEmailService;
     }
 
     //    public static function isValid(EmailVerifierToken $emailVerifierToken, User $user)
@@ -25,14 +20,14 @@ class UserEmailVerifierTokenValidator implements UserVerifierTokenValidatorInter
     //
     //    }
 
-    public static function isAlreadyCreated(User $user): void
+    public function isAlreadyGenerated(User $user): void
     {
         $emailVerifierToken = self::isExists($user->getId());
 
         if ($emailVerifierToken instanceof EmailVerifierToken) {
             if ($emailVerifierToken->getEmail() !== $user->getEmail()) {
-                self::$em->remove($emailVerifierToken);
-                self::$em->flush();
+                $this->em->remove($emailVerifierToken);
+                $this->em->flush();
             } else {
                 if (self::isStillValid($emailVerifierToken)) {
                     return;
@@ -40,23 +35,23 @@ class UserEmailVerifierTokenValidator implements UserVerifierTokenValidatorInter
             }
         }
 
-        self::$confirmEmailService::sendConfirmationEmail($user);
+        $this->confirmEmailService->sendConfirmationEmail($user);
     }
 
-    public static function isStillValid(EmailVerifierToken $emailVerifierToken): bool
+    public function isStillValid(EmailVerifierToken $emailVerifierToken): bool
     {
         if (!$emailVerifierToken->isExpired()) {
             return true;
         }
 
-        self::$em->remove($emailVerifierToken);
-        self::$em->flush();
+        $this->em->remove($emailVerifierToken);
+        $this->em->flush();
 
         return false;
     }
 
-    public static function isExists(?int $userId): ?EmailVerifierToken
+    public function isExists(?int $userId): ?EmailVerifierToken
     {
-        return self::$em->getRepository(EmailVerifierToken::class)->findOneBy(['user' => $userId]);
+        return $this->em->getRepository(EmailVerifierToken::class)->findOneBy(['user' => $userId]);
     }
 }
