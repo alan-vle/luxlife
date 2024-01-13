@@ -26,7 +26,8 @@ final class UserContextBuilder implements SerializerContextBuilderInterface
 
         if (User::class === $resourceClass && isset($context['groups']) && false === $normalization) {
             if ($this->authorizationChecker->isGranted('ROLE_ADMIN') || $this->authorizationChecker->isGranted('ROLE_DIRECTOR')) {
-                $context['groups'][] = 'admin-director:write';
+                $context['groups'][] = 'admin:write';
+                $context['groups'][] = 'director:write';
             }
         }
 

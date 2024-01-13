@@ -36,7 +36,6 @@ use Symfony\Component\Validator\Constraints as Assert;
     normalizationContext: ['groups' => ['agency:read', 'agency-review:read']]
 )]
 #[Post(
-    uriTemplate: '/agencies/new',
     security: "is_granted('ROLE_ADMIN')",
     validationContext: ['groups' => ['Default', 'agency:write']]
 )]

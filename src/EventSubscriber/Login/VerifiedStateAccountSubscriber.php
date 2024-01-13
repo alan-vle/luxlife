@@ -32,6 +32,7 @@ class VerifiedStateAccountSubscriber implements EventSubscriberInterface
             return;
         }
 
+        // Check if account email and phone number(not used) are verified
         if ($user->isVerifiedEmail() || $user->isVerifiedPhoneNumber()) {
             return;
         }

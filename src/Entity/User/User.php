@@ -138,7 +138,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var array<string> $roles
      */
     #[Assert\Type(type: 'array', message: 'The value {{ value }} is not a valid {{ type }}.')]
-    #[Groups(['user:read', 'admin-director:write'])]
+    #[Groups(['user:read', 'admin:write', 'director:write'])]
     #[ORM\Column]
     private array $roles = [];
 
@@ -171,7 +171,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         writableLink: false,
         security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_DIRECTOR') or is_granted('ROLE_AGENT')"
     )]
-    #[Groups(['user:read', 'admin-director:write'])]
+    #[Groups(['user:read', 'admin:write', 'director:write'])]
     #[ORM\ManyToOne(inversedBy: 'users')]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
     private ?Agency $agency = null;
