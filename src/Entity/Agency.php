@@ -16,6 +16,7 @@ use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
 use App\Entity\User\User;
 use App\Repository\AgencyRepository;
+use App\Service\EnumUtils;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -248,13 +249,7 @@ class Agency
      */
     public function getStatus(): ?string
     {
-        if (!$this->status instanceof AgencyStatusEnum) {
-            throw new \Exception('', 500);
-        }
-        // First letter in uppercase, the rest in lowercase and replace underscore by space
-        $normalizedStatusName = fn () => ucfirst(strtolower(str_replace('_', ' ', $this->status->name)));
-
-        return ucfirst(strtolower($normalizedStatusName()));
+        return EnumUtils::normalizedEnumName($this->status);
     }
 
     public function setStatus(AgencyStatusEnum $status): static

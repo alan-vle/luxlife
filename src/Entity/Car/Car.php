@@ -2,6 +2,14 @@
 
 namespace App\Entity\Car;
 
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Entity\Agency;
 use App\Entity\Enum\Car\CarStatusEnum;
 use App\Entity\Rental\Rental;
@@ -9,44 +17,75 @@ use App\Entity\Rental\RentalArchived;
 use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
 use App\Repository\Car\CarRepository;
+use App\Service\EnumUtils;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CarRepository::class)]
 #[ORM\Table(name: '`car`')]
+#[ApiResource(
+    normalizationContext: ['groups' => ['car:read', 'identifier', 'timestamp']],
+    denormalizationContext: ['groups' => ['car:write', 'car:update']],
+)]
+#[GetCollection]
+#[Get(
+    //    normalizationContext: ['groups' => ['manufacturer:read', 'manufacturer-admin:read']]
+)]
+#[Post(
+    security: "is_granted('ROLE_DIRECTOR')",
+    securityPostDenormalize: "is_granted('ROLE_ADMIN') or object.getAgency().getDirector() == user",
+    validationContext: ['groups' => ['Default', 'car:write']]
+)]
+#[Put(
+    security: "is_granted('ROLE_ADMIN')",
+    securityPostDenormalize: "is_granted('ROLE_ADMIN')"
+)]
+#[Patch(
+    security: "is_granted('ROLE_ADMIN') or object.getAgency().getDirector() == user",
+    securityPostDenormalize: "is_granted('ROLE_ADMIN') or object.getAgency().getDirector() == user"
+)]
+#[Delete(security: "is_granted('ROLE_ADMIN')")]
 #[ORM\HasLifecycleCallbacks]
 class Car
 {
     use UuidTrait;
     use TimeStampTrait;
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
+
+    #[ApiProperty(identifier: false)]
+    #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     private ?int $id = null;
 
     #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
     #[Assert\NotBlank(message: 'The model should not be blank.')]
     #[Assert\Length(max: 50, maxMessage: 'The model cannot be longer than {{ limit }} characters')]
+    #[Groups(['car:read', 'car:write'])]
     #[ORM\Column(length: 50)]
     private ?string $model = null;
 
     #[Assert\Type(type: 'integer', message: 'The value {{ value }} is not a valid {{ type }}.')]
     #[Assert\NotNull(message: 'The kilometers should not be blank.')]
+    #[Groups(['car:read', 'car:write'])]
     #[ORM\Column]
     private ?int $kilometers = 0;
 
-    #[Assert\Type(type: 'boolean', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\Type(type: 'object', message: 'The value {{ value }} is not a valid {{ type }}.')]
     #[Assert\NotNull]
+    #[Groups(['car:read', 'car:write'])]
     #[ORM\Column(type: Types::SMALLINT, enumType: CarStatusEnum::class)]
     private ?CarStatusEnum $status = null;
 
+    #[ApiProperty(readableLink: false, writableLink: false)]
+    #[Groups(['car:read', 'car:write'])]
     #[ORM\ManyToOne(inversedBy: 'cars')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Agency $agency = null;
 
+    #[ApiProperty(readableLink: true, writableLink: false)]
+    #[Groups(['car:read', 'car:write'])]
     #[ORM\ManyToOne(inversedBy: 'cars')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Manufacturer $manufacturer = null;
@@ -105,9 +144,9 @@ class Car
         return $this;
     }
 
-    public function isStatus(): ?CarStatusEnum
+    public function getStatus(): ?string
     {
-        return $this->status;
+        return EnumUtils::normalizedEnumName($this->status);
     }
 
     public function setStatus(CarStatusEnum $status): static

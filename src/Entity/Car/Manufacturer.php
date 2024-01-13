@@ -52,7 +52,7 @@ class Manufacturer
     #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
     #[Assert\NotBlank(message: 'The description should not be blank.')]
     #[Assert\Length(max: 16, maxMessage: 'The name cannot be longer than {{ limit }} characters')]
-    #[Groups(['manufacturer:read', 'manufacturer:write'])]
+    #[Groups(['manufacturer:read', 'manufacturer:write', 'car:read'])]
     #[ORM\Column(length: 16)]
     private ?string $name = null;
 
