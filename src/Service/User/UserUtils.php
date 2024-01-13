@@ -3,9 +3,8 @@
 namespace App\Service\User;
 
 use App\Entity\User\User;
+use App\Service\HttpUtils;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class UserUtils
 {
@@ -26,7 +25,7 @@ class UserUtils
         } elseif ($this->security->isGranted('ROLE_DIRECTOR')) {
             $user->setRoles(['agent']);
         } else {
-            $this->throw400HTTPError();
+            HttpUtils::throw400HTTPError();
         }
     }
 
@@ -35,7 +34,7 @@ class UserUtils
         $loggedUser = $this->security->getUser();
 
         if (!$loggedUser) {
-            $this->throw400HTTPError();
+            HttpUtils::throw400HTTPError();
         }
 
         // If logged user is admin, continue updating
@@ -52,7 +51,7 @@ class UserUtils
             if (in_array('ROLE_ADMIN', $updatedUserRoles)
                 || ($loggedUserUuid !== $updatedUser && in_array('ROLE_DIRECTOR', $updatedUserRoles))
             ) {
-                $this->throw400HTTPError();
+                HttpUtils::throw400HTTPError();
             }
         }
     }
@@ -69,7 +68,7 @@ class UserUtils
         $loggedUser = $this->security->getUser();
 
         if (!$loggedUser) {
-            $this->throw400HTTPError();
+            HttpUtils::throw400HTTPError();
         }
         $agencyOfDirector = $user->getAgency()->getDirector();
 
@@ -83,12 +82,7 @@ class UserUtils
         ) {
             return;
         } else {
-            $this->throw400HTTPError();
+            HttpUtils::throw400HTTPError();
         }
-    }
-
-    private function throw400HTTPError(): void
-    {
-        throw new HttpException(Response::HTTP_BAD_REQUEST);
     }
 }
