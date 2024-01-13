@@ -39,7 +39,7 @@ docker-up: ## Start the docker hub in detached mode (no logs)
 
 docker-start: docker-build docker-up ## Build and start the containers
 
-docker-restart: docker-down docker-up ## Build and start the containers
+docker-restart: docker-down docker-up load-data ## Build and start the containers
 
 docker-down: ## Stop the docker hub
 	@$(DOCKER_COMP) down --remove-orphans

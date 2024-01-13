@@ -51,7 +51,7 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
                 ->setPhoneNumber($this->phoneNumberStandardization($faker->mobileNumber()))
                 ->setAgency(array_key_exists('agency', $userData) ? self::isInstanceOfAgency($userData['agency']) : null)
                 ->setRoles(is_array($userData['roles']) ? $userData['roles'] : [])
-            ;
+                ->setFixtures(true);
 
             if (in_array('ADMIN', self::isArray($userData['roles']))
                 || in_array('DIRECTOR', self::isArray($userData['roles']))
@@ -62,6 +62,7 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
                     ->setVerifiedPhoneNumber(true)
                 ;
             }
+
             $manager->persist($user);
 
             $this->addReference(self::isString($userData['ref']), $user);

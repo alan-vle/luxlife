@@ -4,7 +4,7 @@ namespace App\Entity\Enum;
 
 enum AgencyStatusEnum: int
 {
-    case CLOSED = 0;
-    case OPEN = 1;
-    case DEFINITIVELY_CLOSED = 2;
+    case CLOSED_TEMPORARY = 0;
+    case ACTIVE = 1;
+    case CLOSED_DEFINITIVELY = 2;
 }

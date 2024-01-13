@@ -14,24 +14,17 @@ use Symfony\Component\Mime\Address;
 
 class ConfirmEmailService
 {
-    private static MailerInterface $mailer;
-    private static EntityManagerInterface $em;
-    private static string $reactAppUrl;
-
     public function __construct(
-        EntityManagerInterface $em,
-        MailerInterface $mailer,
-        #[Autowire('%react_app_url%')] string $reactAppUrl,
+        private readonly MailerInterface $mailer,
+        private readonly EntityManagerInterface $em,
+        #[Autowire('%react_app_url%')] private readonly string $reactAppUrl,
     ) {
-        self::$em = $em;
-        self::$mailer = $mailer;
-        self::$reactAppUrl = $reactAppUrl;
     }
 
     /**
      * @throws TransportExceptionInterface
      */
-    public static function sendConfirmationEmail(User $user): void
+    public function sendConfirmationEmail(User $user): void
     {
         $userEmail = $user->getEmail() ?: '';
         $emailVerifierToken = new EmailVerifierToken();
@@ -44,10 +37,10 @@ class ConfirmEmailService
             ->setExpiresAt($expirationDate->format('Y-m-d H:i'))
         ;
 
-        self::$em->persist($emailVerifierToken);
-        self::$em->flush();
+        $this->em->persist($emailVerifierToken);
+        $this->em->flush();
 
-        $url = self::$reactAppUrl.'/confirm-email/'.$emailVerifierToken->getUuid();
+        $url = $this->reactAppUrl.'/confirm-email/'.$emailVerifierToken->getUuid();
 
         // Create a signed url for allow access to confirm email controller
         $signedUrl = UrlSignedCreator::getSignedUrlBySpatieBundle($url, $expirationDate);
@@ -70,6 +63,6 @@ class ConfirmEmailService
             ->addTextHeader('X-Transport', 'no_reply')
         ;
 
-        self::$mailer->send($email);
+        $this->mailer->send($email);
     }
 }

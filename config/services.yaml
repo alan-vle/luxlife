@@ -30,12 +30,12 @@ services:
         bind:
             $processor: '@api_platform.doctrine.orm.state.persist_processor'
 
-    ##### Inject app env #####
-#    App\EventSubscriber\ExceptionSubscriber:
-#        arguments:
-#            $appEnv: '%env(APP_ENV)%'
-#
-#    App\Service\Mailer\ConfirmEmail:
-#        arguments:
-#            $appEnv: '%env(APP_ENV)%'
-    ##### END #####
+    App\Serializer\AgencyContextBuilder:
+        decorates: 'api_platform.serializer.context_builder'
+        arguments: [ '@App\Serializer\AgencyContextBuilder.inner' ]
+        autoconfigure: false
+
+    App\Serializer\UserContextBuilder:
+        decorates: 'api_platform.serializer.context_builder'
+        arguments: [ '@App\Serializer\UserContextBuilder.inner' ]
+        autoconfigure: false

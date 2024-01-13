@@ -14,12 +14,12 @@ interface UserVerifierTokenValidatorInterface
     /**
      * Check if user token entity (VerifierEmailToken, VerifierPhoneNumberToken) has already created.
      */
-    public static function isAlreadyCreated(User $user): void;
+    public function isAlreadyGenerated(User $user): void;
 
     /**
      * Check expiration date of a user (Confirm email, Confirm phone number) token entity.
      */
-    public static function isStillValid(EmailVerifierToken $emailVerifierToken): bool;
+    public function isStillValid(EmailVerifierToken $emailVerifierToken): bool;
 
-    public static function isExists(?int $userId): ?EmailVerifierToken;
+    public function isExists(?int $userId): ?EmailVerifierToken;
 }
