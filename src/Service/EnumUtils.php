@@ -4,6 +4,9 @@ namespace App\Service;
 
 enum EnumUtils
 {
+    /**
+     * Enum name normalized. First letter in uppercase, the rest in lowercase and replace underscores by space.
+     */
     public static function normalizedEnumName(mixed $enum): string
     {
         if (!is_object($enum)) {
@@ -16,7 +19,6 @@ enum EnumUtils
             HttpUtils::throw400HTTPError();
         }
 
-        // First letter in uppercase, the rest in lowercase and replace underscore by space
         return ucfirst(strtolower(str_replace('_', ' ', $enum->name)));
     }
 }
