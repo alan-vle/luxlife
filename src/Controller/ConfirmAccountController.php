@@ -24,6 +24,7 @@ class ConfirmAccountController extends AbstractController
     #[Route('/confirm-email/{uuid}', name: 'app_confirm_email', defaults: ['_signed' => true], methods: ['GET'])]
     public function confirmEmail(EmailVerifierToken $emailVerifierToken, Request $request, EntityManagerInterface $em): JsonResponse
     {
+        // If user is logged so force logout
         if ($this->security->getUser()) {
             $this->security->logout(false);
         }
@@ -32,9 +33,12 @@ class ConfirmAccountController extends AbstractController
         $absoluteUrl = $request->getUri();
         $user = $emailVerifierToken->getUser();
 
+        // Checks if url is invalid or user is not a user or user has already verified his email
+        // or user's email is different from registered email in EmailVerifier
         if (!$urlSigner->validate($absoluteUrl) || !$user instanceof User
             || $user->isVerifiedEmail() || $user->getEmail() !== $emailVerifierToken->getEmail()
         ) {
+            // Then remove the emailVerifierToken in db
             $em->remove($emailVerifierToken);
             $em->flush();
 

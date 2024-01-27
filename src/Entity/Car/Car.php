@@ -2,6 +2,8 @@
 
 namespace App\Entity\Car;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -49,6 +51,13 @@ use Symfony\Component\Validator\Constraints as Assert;
     securityPostDenormalize: "is_granted('ROLE_ADMIN') or object.getAgency().getDirector() == user"
 )]
 #[Delete(security: "is_granted('ROLE_ADMIN')")]
+#[ApiFilter(SearchFilter::class, properties: [
+    'model' => 'partial',
+    'kilometers' => 'partial',
+    'status' => 'exact',
+    'agency' => 'exact',
+    'manufacturer' => 'exact',
+])]
 #[ORM\HasLifecycleCallbacks]
 class Car
 {
@@ -107,6 +116,9 @@ class Car
      */
     #[ORM\OneToMany(mappedBy: 'car', targetEntity: RentalArchived::class)]
     private Collection $rentalsArchived;
+
+    #[ORM\Column(type: Types::DECIMAL, precision: 8, scale: 2)]
+    private ?string $price_per_kilometer = null;
 
     public function __construct()
     {
@@ -266,6 +278,18 @@ class Car
                 $rentalsArchived->setCar(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPricePerKilometer(): ?string
+    {
+        return $this->price_per_kilometer;
+    }
+
+    public function setPricePerKilometer(string $price_per_kilometer): static
+    {
+        $this->price_per_kilometer = $price_per_kilometer;
 
         return $this;
     }

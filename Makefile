@@ -54,9 +54,11 @@ docker-ls: ## Show live logs
 docker-php: ## Connect to the PHP FPM container
 	@$(PHP_CONT) sh
 
-docker-cron: ## Connect to the PHP FPM container
+docker-cron: ## Connect to the cron container
 	@$(CRON_CONT) sh
 
+docker-cron-recreate: ## Rebuild the cron container
+	@$(DOCKER_COMP) up cron --build -d --force-recreate
 ## —— Composer 🧙 ——————————————————————————————————————————————————————————————
 composer: ## Run composer, pass the parameter "c=" to run a given command, example: make composer c='req symfony/orm-pack'
 	@$(eval c ?=)

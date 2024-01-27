@@ -25,7 +25,7 @@ class UserEntityListener
 
     public function prePersist(User $user, PrePersistEventArgs $args): void
     {
-        if ($user->isFixtures()) {
+        if ($user->isFixtures) {
             return;
         }
 
@@ -64,7 +64,7 @@ class UserEntityListener
 
     public function postUpdate(User $user): void
     {
-        if ($user->isFixtures()) {
+        if ($user->isFixtures) {
             return;
         }
 

@@ -9,7 +9,7 @@ use App\Entity\User\User;
 
 interface RentalInterface
 {
-    public function getContract(): ?RentalContractEnum;
+    public function getContract(): ?string;
 
     public function setContract(RentalContractEnum $contract): static;
 
@@ -29,11 +29,11 @@ interface RentalInterface
 
     public function setToDate(\DateTimeInterface $toDate): static;
 
-    public function getPrice(): ?string;
+    public function getPrice(): ?int;
 
-    public function setPrice(string $price): static;
+    public function setPrice(string $price = null): ?static;
 
-    public function getStatus(): ?RentalStatusEnum;
+    public function getStatus(): ?string;
 
     public function setStatus(RentalStatusEnum $status): static;
 

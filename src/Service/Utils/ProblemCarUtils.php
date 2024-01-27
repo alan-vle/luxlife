@@ -5,6 +5,7 @@ namespace App\Service\Utils;
 use App\Entity\Agency;
 use App\Entity\Car\Car;
 use App\Entity\Car\ProblemCar;
+use App\Entity\Enum\Car\CarStatusEnum;
 use App\Repository\AgencyRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Faker;
@@ -27,8 +28,11 @@ class ProblemCarUtils
         }
 
         $car = self::getRandomCarInRandomAgency($agencies);
-        $problemCar = self::createProblemCar($car instanceof Car ? $car : new Car());
+        $car = $car instanceof Car ? $car : new Car();
 
+        $problemCar = self::createProblemCar($car);
+
+        $car->setStatus(CarStatusEnum::PROBLEM);
         $this->em->persist($problemCar);
         $this->em->flush();
     }

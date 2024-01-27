@@ -25,6 +25,8 @@ class RentalFixtures extends Fixture implements DependentFixtureInterface
 
         foreach ($rentals as $rentalData) {
             $rental = new Rental();
+            $rental->isFixtures = true;
+
             $rental
                 ->setCustomer(is_string($rentalData['customer']) ? $this->isInstanceOfUser($rentalData['customer']) : throw new \Exception())
                 ->setEmployee(
@@ -41,19 +43,15 @@ class RentalFixtures extends Fixture implements DependentFixtureInterface
                 )
                 ->setFromDate($this->stringToDateTime($rentalData['from_date']))
                 ->setToDate($this->stringToDateTime($rentalData['to_date']))
-                ->setPrice(
-                    is_int($rentalData['price']) ? (string) $rentalData['price'] : ''
-                )
                 ->setStatus(
                     $rentalData['status'] instanceof RentalStatusEnum ? $rentalData['status'] : RentalStatusEnum::DRAFT
                 )
             ;
-
             $manager->persist($rental);
 
-            if (RentalStatusEnum::DELIVERY === $rental->getStatus()) {
+            if (RentalStatusEnum::DELIVERY === $rental->getBrutStatus()) {
                 $this->addReference(self::RENTAL_DELIVERY_REF, $rental);
-            } elseif (RentalStatusEnum::RETURNED === $rental->getStatus()) {
+            } elseif (RentalStatusEnum::RETURNED === $rental->getBrutStatus()) {
                 $rental->setUsedKilometers(
                     is_int($rentalData['used_kilometers']) ? $rentalData['used_kilometers'] : 0
                 );
@@ -120,7 +118,6 @@ class RentalFixtures extends Fixture implements DependentFixtureInterface
                 'mileage_kilometers' => 42000,
                 'from_date' => '2024-01-18',
                 'to_date' => '2026-01-25',
-                'price' => 80000,
                 'status' => RentalStatusEnum::DRAFT,
             ],
             [
@@ -130,7 +127,6 @@ class RentalFixtures extends Fixture implements DependentFixtureInterface
                 'mileage_kilometers' => 1000,
                 'from_date' => '2024-01-09',
                 'to_date' => '2024-01-19',
-                'price' => 3000,
                 'status' => RentalStatusEnum::RESERVED,
             ],
             [
@@ -141,7 +137,6 @@ class RentalFixtures extends Fixture implements DependentFixtureInterface
                 'mileage_kilometers' => 200,
                 'from_date' => '2024-01-14',
                 'to_date' => '2024-01-17',
-                'price' => 1800,
                 'status' => RentalStatusEnum::DELIVERY,
             ],
             [
@@ -151,7 +146,6 @@ class RentalFixtures extends Fixture implements DependentFixtureInterface
                 'mileage_kilometers' => 7000,
                 'from_date' => '2024-01-09',
                 'to_date' => '2025-01-19',
-                'price' => 22000,
                 'status' => RentalStatusEnum::RENTED,
             ],
             [
@@ -163,7 +157,6 @@ class RentalFixtures extends Fixture implements DependentFixtureInterface
                 'used_kilometers' => 1850,
                 'from_date' => '2023-11-10',
                 'to_date' => '2023-12-02',
-                'price' => 3000,
                 'status' => RentalStatusEnum::RETURNED,
                 'ref' => self::RENTAL_RETURNED_REF,
             ],
@@ -176,7 +169,6 @@ class RentalFixtures extends Fixture implements DependentFixtureInterface
                 'used_kilometers' => 3740,
                 'from_date' => '2023-01-01',
                 'to_date' => '2023-02-01',
-                'price' => 5000,
                 'status' => RentalStatusEnum::RETURNED,
                 'ref' => self::RENTAL_RETURNED_MUST_BE_ARCHIVED_REF,
             ],

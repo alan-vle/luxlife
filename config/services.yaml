@@ -39,3 +39,8 @@ services:
         decorates: 'api_platform.serializer.context_builder'
         arguments: [ '@App\Serializer\UserContextBuilder.inner' ]
         autoconfigure: false
+
+    App\Serializer\RentalContextBuilder:
+        decorates: 'api_platform.serializer.context_builder'
+        arguments: [ '@App\Serializer\RentalContextBuilder.inner' ]
+        autoconfigure: false

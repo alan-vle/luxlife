@@ -7,8 +7,12 @@ use App\Entity\Enum\Rental\RentalContractEnum;
 use App\Entity\Enum\Rental\RentalStatusEnum;
 use App\Entity\Rental\Delivery;
 use App\Entity\User\User;
+use App\Service\Utils\EnumUtils;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Event\PrePersistEventArgs;
+use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 trait RentalPropertyTrait
@@ -16,51 +20,56 @@ trait RentalPropertyTrait
     /**
      * Contract : LLD (1), Classic (0).
      */
-    #[Assert\Type(type: 'boolean', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\Type(type: 'object', message: 'The value {{ value }} is not a valid {{ type }}.')]
     #[Assert\NotNull]
+    #[Groups(['rental:read', 'rental:write'])]
     #[ORM\Column(type: Types::SMALLINT, enumType: RentalContractEnum::class)]
     private ?RentalContractEnum $contract = null;
 
     #[Assert\Type(type: 'integer', message: 'The value {{ value }} is not a valid {{ type }}.')]
     #[Assert\NotNull(message: 'The kilometers should not be blank.')]
+    #[Groups(['rental:read', 'rental:write'])]
     #[ORM\Column]
     private ?int $mileageKilometers = null;
 
+    #[Groups(['rental:read', 'rental-agent:write'])]
     #[ORM\Column(nullable: true)]
     private ?int $usedKilometers = null;
 
-    #[Assert\DateTime]
+    #[Assert\GreaterThanOrEqual('now')]
     #[Assert\NotBlank]
+    #[Groups(['rental:read', 'rental:write'])]
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $fromDate = null;
 
-    #[Assert\DateTime]
+    #[Assert\GreaterThanOrEqual('now')]
     #[Assert\NotBlank]
+    #[Groups(['rental:read', 'rental:write'])]
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $toDate = null;
 
     #[Assert\Type(type: 'numeric', message: 'The value {{ value }} is not a valid {{ type }}.')]
-    #[Assert\NotNull]
-    #[Assert\NotBlank]
-    #[Assert\Range(
-        notInRangeMessage: 'There is a problem with your price.',
-        min: 0,
-        max: 999999.99
-    )]
+    /*    #[Assert\NotNull]
+        #[Assert\NotBlank]
+        #[Assert\Range(
+            notInRangeMessage: 'There is a problem with your price.',
+            min: 0,
+            max: 999999.99
+        )]*/
+    #[Groups(['rental:read'])]
     #[ORM\Column(type: Types::DECIMAL, precision: 8, scale: 2)]
     private ?string $price = null;
 
-    #[Assert\Type(type: 'integer', message: 'The value {{ value }} is not a valid {{ type }}.')]
-    #[Assert\NotNull(message: 'The kilometers should not be blank.')]
+    #[Groups(['rental:read'])]
     #[ORM\Column(type: types::SMALLINT, enumType: RentalStatusEnum::class)]
     private ?RentalStatusEnum $status = null;
 
     /**
-     * Contract : LLD (1), Classic (0).
+     * Contract : Classic (0), LLD (1).
      */
-    public function getContract(): ?RentalContractEnum
+    public function getContract(): ?string
     {
-        return $this->contract;
+        return EnumUtils::nameNormalizer($this->contract);
     }
 
     public function setContract(RentalContractEnum $contract): static
@@ -118,19 +127,30 @@ trait RentalPropertyTrait
         return $this;
     }
 
-    public function getPrice(): ?string
+    public function getPrice(): ?int
     {
-        return $this->price;
+        return (int) $this->price;
     }
 
-    public function setPrice(string $price): static
+    #[ORM\PrePersist, ORM\PreUpdate]
+    public function setPrice(PrePersistEventArgs|PreUpdateEventArgs|string $price = null): ?static
     {
-        $this->price = $price;
+        if (is_string($price)) {
+            $this->price = $price;
+        }
+        $car = $this->getCar() instanceof Car ? $this->getCar() : new Car();
+
+        $this->price = (string) ((int) $car->getPricePerKilometer() * (int) $this->mileageKilometers);
 
         return $this;
     }
 
-    public function getStatus(): ?RentalStatusEnum
+    public function getStatus(): string
+    {
+        return EnumUtils::nameNormalizer($this->status);
+    }
+
+    public function getBrutStatus(): ?RentalStatusEnum
     {
         return $this->status;
     }

@@ -206,7 +206,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'employee', targetEntity: RentalArchived::class)]
     private Collection $rentalsArchivedAsEmployee;
 
-    private bool $fixtures = false;
+    public bool $isFixtures = false;
 
     public function __construct()
     {
@@ -567,18 +567,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $rentalsArchivedAsEmployee->setEmployee(null);
             }
         }
-
-        return $this;
-    }
-
-    public function isFixtures(): bool
-    {
-        return $this->fixtures;
-    }
-
-    public function setFixtures(bool $fixtures): static
-    {
-        $this->fixtures = $fixtures;
 
         return $this;
     }

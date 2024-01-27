@@ -6,8 +6,10 @@ use App\Entity\Enum\Rental\DeliveryStatusEnum;
 use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
 use App\Repository\Rental\DeliveryRepository;
+use App\Service\Utils\EnumUtils;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: DeliveryRepository::class)]
@@ -18,9 +20,7 @@ class Delivery
     use UuidTrait;
     use TimeStampTrait;
 
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     private ?int $id = null;
 
     #[Assert\Type(type: 'boolean', message: 'The value {{ value }} is not a valid {{ type }}.')]
@@ -57,9 +57,9 @@ class Delivery
         return $this->id;
     }
 
-    public function getStatus(): ?DeliveryStatusEnum
+    public function getStatus(): string
     {
-        return $this->status;
+        return EnumUtils::nameNormalizer($this->status);
     }
 
     public function setStatus(DeliveryStatusEnum $status): static
@@ -103,6 +103,11 @@ class Delivery
         $this->rental = $rental;
 
         return $this;
+    }
+
+    public function getTrackNumber(): ?Uuid
+    {
+        return $this->uuid;
     }
 
     public function setRentalArchived(?RentalArchived $rentalArchived): void

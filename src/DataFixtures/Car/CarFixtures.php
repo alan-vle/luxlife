@@ -36,6 +36,7 @@ class CarFixtures extends Fixture implements DependentFixtureInterface
                 )
                 ->setAgency($this->isInstanceOfAgency(AgencyFixtures::AGENCY_MARSEILLE_REFERENCE))
                 ->setModel(is_string($carData['model']) ? $carData['model'] : '')
+                ->setPricePerKilometer(is_int($carData['price_per_km']) ? (string) $carData['price_per_km'] : '')
                 ->setKilometers(is_int($carData['kilometers']) ? $carData['kilometers'] : 0)
                 ->setStatus($carData['status'] instanceof CarStatusEnum ? $carData['status'] : CarStatusEnum::AVAILABLE)
             ;
@@ -56,6 +57,7 @@ class CarFixtures extends Fixture implements DependentFixtureInterface
                 ->setManufacturer($this->isInstanceOfManufacturer($manufacturers[array_rand($manufacturers)]))
                 ->setAgency($this->isInstanceOfAgency(AgencyFixtures::AGENCY_MARSEILLE_REFERENCE))
                 ->setModel($faker->word())
+                ->setPricePerKilometer((string) $faker->randomNumber(3, true))
                 ->setKilometers($faker->randomNumber(5, true))
                 ->setStatus($carStatus[array_rand($carStatus)])
             ;
@@ -96,6 +98,7 @@ class CarFixtures extends Fixture implements DependentFixtureInterface
             [
                 'manufacturer' => ManufacturerFixtures::TESLA_REF,
                 'model' => 'Model S',
+                'price_per_km' => 7,
                 'kilometers' => 10000,
                 'status' => CarStatusEnum::RESERVED,
                 'ref' => self::TESLA_MODEL_S_REF,
@@ -103,6 +106,7 @@ class CarFixtures extends Fixture implements DependentFixtureInterface
             [
                 'manufacturer' => ManufacturerFixtures::AUDI_REF,
                 'model' => 'TT',
+                'price_per_km' => 10,
                 'kilometers' => 40000,
                 'status' => CarStatusEnum::RENTED,
                 'ref' => self::AUDI_TT_REF,
@@ -110,6 +114,7 @@ class CarFixtures extends Fixture implements DependentFixtureInterface
             [
                 'manufacturer' => ManufacturerFixtures::AUDI_REF,
                 'model' => 'R8',
+                'price_per_km' => 11,
                 'kilometers' => 74000,
                 'status' => CarStatusEnum::AVAILABLE,
                 'ref' => self::AUDI_R8_REF,
@@ -117,6 +122,7 @@ class CarFixtures extends Fixture implements DependentFixtureInterface
             [
                 'manufacturer' => ManufacturerFixtures::AUDI_REF,
                 'model' => 'Q2',
+                'price_per_km' => 4,
                 'kilometers' => 28000,
                 'status' => CarStatusEnum::RENTED,
                 'ref' => self::AUDI_Q2_REF,
@@ -124,6 +130,7 @@ class CarFixtures extends Fixture implements DependentFixtureInterface
             [
                 'manufacturer' => ManufacturerFixtures::AUDI_REF,
                 'model' => 'Q3',
+                'price_per_km' => 5,
                 'kilometers' => 170000,
                 'status' => CarStatusEnum::PROBLEM,
                 'ref' => self::AUDI_Q3_REF,
