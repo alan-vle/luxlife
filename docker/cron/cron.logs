@@ -1,0 +1,4 @@
+Connecting to nginx:80 (172.22.0.5:80)
+writing to stdout
+{"status":200,"message":"Problem generate with success."}-                    100% |********************************|    57  0:00:00 ETA
+written to stdout

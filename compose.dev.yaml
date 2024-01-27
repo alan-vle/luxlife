@@ -12,6 +12,8 @@ services:
       - symfony
     volumes:
       - ./:/srv/${COMPOSE_PROJECT_NAME}/
+    depends_on:
+      - php
     restart: unless-stopped
 
   # Php container | All environment
@@ -24,6 +26,10 @@ services:
       - symfony
     volumes:
       - ./:/srv/${COMPOSE_PROJECT_NAME}/
+    depends_on:
+      database:
+        condition: service_healthy
+        restart: true
     restart: unless-stopped
 
   # PostgreSQL database container | Only in dev environment
@@ -38,11 +44,13 @@ services:
       - db-data:/var/lib/postgresql@15/data:rw
     ports:
       - "5432:5432"
-    depends_on:
-      - nginx
-      - php
     networks:
       - symfony
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ad_luxlife -d luxlife -h localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
 
   # Pgadmin container | Only in dev environment
@@ -57,10 +65,10 @@ services:
       - pgadmin:/var/lib/pgadmin
     ports:
       - "${PGADMIN_PORT:-5050}:80"
-    depends_on:
-      - database
     networks:
       - symfony
+    depends_on:
+      - nginx
     restart: unless-stopped
 
   mailer:
@@ -70,7 +78,25 @@ services:
       - "1025:1080"
     networks:
       - symfony
+    depends_on:
+      - php
     restart: unless-stopped
+
+  # Cron container
+  cron:
+    container_name: ${COMPOSE_PROJECT_NAME}_dev_cron
+    build:
+      context: .
+      dockerfile: docker/cron/Dockerfile
+    entrypoint: /usr/sbin/crond
+    command: [ "-f", "-l", "2", "-L", "/dev/stdout" ]
+    volumes:
+      - ./docker/cron/cron.logs:/var/log/cron.logs
+    depends_on:
+      - pgadmin
+    networks:
+      - symfony
+    restart: always
 
 networks:
   symfony:

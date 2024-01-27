@@ -6,7 +6,6 @@ use App\Entity\Agency;
 use App\Entity\Enum\AgencyStatusEnum;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
-use Faker;
 
 class AgencyFixtures extends Fixture
 {
@@ -14,7 +13,6 @@ class AgencyFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        $faker = Faker\Factory::create('fr_FR');
         $agency = new Agency();
         $agency->setAddress('2 rue du Clusety');
         $agency->setCity('Marseille, 13013');

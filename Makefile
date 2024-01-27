@@ -9,6 +9,7 @@ DOCKER_COMP = docker compose -f compose.dev.yaml
 
 # Docker containers
 PHP_CONT = $(DOCKER_COMP) exec php
+CRON_CONT = $(DOCKER_COMP) exec cron
 
 # Executables
 
@@ -50,8 +51,11 @@ docker-logs: ## Show live logs
 docker-ls: ## Show live logs
 	@$(DOCKER_COMP) lsdocker
 
-docker-sh: ## Connect to the PHP FPM container
+docker-php: ## Connect to the PHP FPM container
 	@$(PHP_CONT) sh
+
+docker-cron: ## Connect to the PHP FPM container
+	@$(CRON_CONT) sh
 
 ## —— Composer 🧙 ——————————————————————————————————————————————————————————————
 composer: ## Run composer, pass the parameter "c=" to run a given command, example: make composer c='req symfony/orm-pack'

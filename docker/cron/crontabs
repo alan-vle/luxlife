@@ -1,0 +1,2 @@
+# minute hour day_of_month month day_of_week command_to_run
+*/10 8-12 * * * /bin/sh /problem-car-generator > /var/log/cron.logs 2>&1

@@ -23,14 +23,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     normalizationContext: ['groups' => ['problem-car:read', 'identifier', 'timestamp']],
     denormalizationContext: ['groups' => ['problem-car:write', 'problem-car:update']],
-)]
-#[GetCollection(
-    security: "is_granted('ROLE_ADMIN')"
-)]
-#[Get(
     security: "is_granted('ROLE_AGENT')"
-    //    normalizationContext: ['groups' => ['manufacturer:read', 'manufacturer-admin:read']]
 )]
+#[GetCollection]
+#[Get]
 #[Post(
     security: "is_granted('ROLE_ADMIN')",
     validationContext: ['groups' => ['Default', 'problem-car:write']]
@@ -69,8 +65,8 @@ class ProblemCar
     #[ORM\Column]
     private ?bool $type = null;
 
-    #[Assert\DateTime]
     #[Assert\NotBlank]
+    #[Assert\LessThan('now')]
     #[Groups(['problem-car:read', 'problem-car:write'])]
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $problemDate = null;
@@ -99,7 +95,7 @@ class ProblemCar
     }
 
     /**
-     * Type : Failure (0), Accident (1).
+     * Type : Failure (false|0), Accident (true|1).
      */
     public function getType(): ?string
     {
