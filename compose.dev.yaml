@@ -13,7 +13,9 @@ services:
     volumes:
       - ./:/srv/${COMPOSE_PROJECT_NAME}/
     depends_on:
-      - php
+        php:
+          condition: service_healthy
+          restart: true
     restart: unless-stopped
 
   # Php container | All environment
@@ -26,11 +28,13 @@ services:
       - symfony
     volumes:
       - ./:/srv/${COMPOSE_PROJECT_NAME}/
+    environment:
+      - BIN_VENDOR_FOLDER=/srv/${COMPOSE_PROJECT_NAME}/vendor/bin
     healthcheck:
-      test: [ "CMD", "/bin/sh", "-c", "if [ -d /srv/$${COMPOSE_PROJECT_NAME}/bin ]; then exit 0; else exit 1; fi" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      test: ["CMD-SHELL", "/bin/sh", "-c", "[ -n \"$(ls -A /srv/luxlife/vendor/bin)\" ]"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
     depends_on:
       database:
         condition: service_healthy
