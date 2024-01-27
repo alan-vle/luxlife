@@ -10,6 +10,7 @@ use App\Entity\Enum\Car\CarStatusEnum;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
+use Faker;
 
 class CarFixtures extends Fixture implements DependentFixtureInterface
 {
@@ -44,6 +45,23 @@ class CarFixtures extends Fixture implements DependentFixtureInterface
             $this->addReference(is_string($carData['ref']) ? $carData['ref'] : '', $car);
         }
 
+        $manufacturers = [ManufacturerFixtures::TESLA_REF, ManufacturerFixtures::AUDI_REF];
+        $carStatus = [CarStatusEnum::RESERVED, CarStatusEnum::RENTED, CarStatusEnum::AVAILABLE, CarStatusEnum::PROBLEM];
+        $faker = Faker\Factory::create('fr_FR');
+
+        for ($i = 0; $i < 5; ++$i) {
+            $car = new Car();
+
+            $car
+                ->setManufacturer($this->isInstanceOfManufacturer($manufacturers[array_rand($manufacturers)]))
+                ->setAgency($this->isInstanceOfAgency(AgencyFixtures::AGENCY_MARSEILLE_REFERENCE))
+                ->setModel($faker->word())
+                ->setKilometers($faker->randomNumber(5, true))
+                ->setStatus($carStatus[array_rand($carStatus)])
+            ;
+
+            $manager->persist($car);
+        }
         $manager->flush();
     }
 

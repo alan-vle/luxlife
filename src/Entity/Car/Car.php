@@ -17,7 +17,7 @@ use App\Entity\Rental\RentalArchived;
 use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
 use App\Repository\Car\CarRepository;
-use App\Service\EnumUtils;
+use App\Service\Utils\EnumUtils;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -146,7 +146,7 @@ class Car
 
     public function getStatus(): ?string
     {
-        return EnumUtils::normalizedEnumName($this->status);
+        return EnumUtils::nameNormalizer($this->status);
     }
 
     public function setStatus(CarStatusEnum $status): static

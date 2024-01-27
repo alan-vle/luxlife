@@ -33,8 +33,6 @@ jobs:
             compose.dev.yaml
       - name: Start services
         run: make docker-up
-      - name: Sleep (25 seconds at the moment) on the ubuntu OS (inside workflow) to allow files to be generated during the build process
-        run: sleep 25
       - name: Check HTTP reachability
         run: curl -v -o /dev/null http://localhost:8080
       - name: Run PHPStan

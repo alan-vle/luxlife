@@ -3,8 +3,8 @@
 namespace App\Service\User;
 
 use App\Entity\User\User;
-use App\Service\HttpUtils;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
 class UserUtils
 {
@@ -14,18 +14,19 @@ class UserUtils
     }
 
     /**
-     * Check roles submitted by the user.
+     * Check roles submitted by the user (only admin or director but for security).
      */
     public function defineRoleAccordingToCase(User $user): void
     {
+        // User not logged === new customer
         if (!$this->security->getUser()) {
             $user->setRoles(['customer']);
-        } elseif ($this->security->isGranted('ROLE_ADMIN')) {
+        } elseif ($this->security->isGranted('ROLE_ADMIN')) { // User logged as admin, return; bc he can do anything
             return;
-        } elseif ($this->security->isGranted('ROLE_DIRECTOR')) {
+        } elseif ($this->security->isGranted('ROLE_DIRECTOR')) { // User logged as director, set roles agent
             $user->setRoles(['agent']);
         } else {
-            HttpUtils::throw400HTTPError();
+            throw new BadRequestException();
         }
     }
 
@@ -33,8 +34,8 @@ class UserUtils
     {
         $loggedUser = $this->security->getUser();
 
-        if (!$loggedUser) {
-            HttpUtils::throw400HTTPError();
+        if (!$loggedUser instanceof User) {
+            throw new BadRequestException();
         }
 
         // If logged user is admin, continue updating
@@ -43,7 +44,7 @@ class UserUtils
         }
 
         if ($this->security->isGranted('ROLE_DIRECTOR')) {
-            $loggedUserUuid = $loggedUser->getUuid(); /** @phpstan-ignore-line */
+            $loggedUserUuid = $loggedUser->getUuid();
             $updatedUserRoles = $updatedUser->getRoles();
 
             // Check if the logged director has tried to assign the administrator role,
@@ -51,7 +52,7 @@ class UserUtils
             if (in_array('ROLE_ADMIN', $updatedUserRoles)
                 || ($loggedUserUuid !== $updatedUser && in_array('ROLE_DIRECTOR', $updatedUserRoles))
             ) {
-                HttpUtils::throw400HTTPError();
+                throw new BadRequestException();
             }
         }
     }
@@ -67,9 +68,10 @@ class UserUtils
 
         $loggedUser = $this->security->getUser();
 
-        if (!$loggedUser) {
-            HttpUtils::throw400HTTPError();
+        if (!$loggedUser instanceof User) {
+            throw new BadRequestException();
         }
+
         $agencyOfDirector = $user->getAgency()->getDirector();
 
         // If agency is not null, and logged user is admin
@@ -77,12 +79,12 @@ class UserUtils
         if ($this->security->isGranted('ROLE_ADMIN')
             || (
                 $this->security->isGranted('ROLE_DIRECTOR') && $agencyOfDirector
-                && $agencyOfDirector->getUuid() === $loggedUser->getUuid() /* @phpstan-ignore-line */
+                && $agencyOfDirector->getUuid() === $loggedUser->getUuid()
             )
         ) {
             return;
         } else {
-            HttpUtils::throw400HTTPError();
+            throw new BadRequestException();
         }
     }
 }
