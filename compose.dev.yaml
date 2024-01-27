@@ -26,6 +26,11 @@ services:
       - symfony
     volumes:
       - ./:/srv/${COMPOSE_PROJECT_NAME}/
+    healthcheck:
+      test: [ "CMD", "/bin/sh", "-c", "if [ -d /srv/$${COMPOSE_PROJECT_NAME}/bin ]; then exit 0; else exit 1; fi" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     depends_on:
       database:
         condition: service_healthy
