@@ -50,7 +50,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     '(object.getEmployee() and object.getEmployee().getAgency() and object.getEmployee().getAgency().getDirector() == user)',
 )]
 #[Delete(security: "is_granted('ROLE_ADMIN')")]
-#[ApiFilter(SearchFilter::class, properties: ['agency' => 'exact', 'car' => 'exact'])]
+#[ApiFilter(SearchFilter::class, properties: ['agency' => 'exact', 'car' => 'exact', 'status' => 'exact'])]
 #[ORM\HasLifecycleCallbacks]
 class Rental extends AbstractRental
 {
@@ -85,6 +85,7 @@ class Rental extends AbstractRental
     #[ORM\JoinColumn(nullable: false)]
     protected ?Car $car = null;
 
+    #[ApiProperty(readableLink: false, writableLink: true)]
     #[Groups(['rental:read', 'rental:write'])]
     #[ORM\OneToOne(mappedBy: 'rental', cascade: ['persist', 'remove'])]
     protected ?Delivery $delivery = null;
@@ -165,5 +166,12 @@ class Rental extends AbstractRental
     public function getDelivery(): ?Delivery
     {
         return $this->delivery;
+    }
+
+    public function setDelivery(?Delivery $delivery): static
+    {
+        $this->delivery = $delivery;
+
+        return $this;
     }
 }

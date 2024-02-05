@@ -4,6 +4,7 @@ namespace App\EntityListener\Rental;
 
 use App\Entity\Car\Car;
 use App\Entity\Enum\Car\CarStatusEnum;
+use App\Entity\Enum\Rental\DeliveryStatusEnum;
 use App\Entity\Enum\Rental\RentalStatusEnum;
 use App\Entity\Rental\Delivery;
 use App\Entity\Rental\Rental;
@@ -34,6 +35,7 @@ class RentalEntityListener
         if ($rental->isFixtures) {
             return;
         }
+
         $car = $rental->getCar() instanceof Car ? $rental->getCar() : throw new BadRequestException();
 
         if (CarStatusEnum::AVAILABLE !== $car->getBrutStatus()) {
@@ -50,6 +52,15 @@ class RentalEntityListener
 
         $rental->setAgency($car->getAgency() ?: throw new BadRequestException());
         $this->isAgencyOrOnlineRental($rental);
+        if (null !== $rental->getDelivery()) {
+            $rental
+                ->getDelivery()
+                ->setRental($rental)
+                ->setStatus(DeliveryStatusEnum::PREPARATION)
+            ;
+
+            $rental->setStatus(RentalStatusEnum::DELIVERY);
+        }
 
         if (null !== $rental->getBrutStatus()) {
             $this->updateCarStatus($rental->getBrutStatus(), $car);
@@ -100,8 +111,6 @@ class RentalEntityListener
     {
         if ($rental->draftRental) {
             $rental->setStatus(RentalStatusEnum::DRAFT);
-        } elseif (null !== $rental->getDelivery()) {
-            $rental->setStatus(RentalStatusEnum::DELIVERY);
         } else {
             $rental->setStatus(RentalStatusEnum::RESERVED);
         }
