@@ -31,7 +31,7 @@ final class ExceptionSubscriber implements EventSubscriberInterface
         $exception = $event->getThrowable();
 
         if ($exception instanceof CustomException) {
-            $data['status'] = $exception->getCode();
+            $data['status'] = $exception->getStatusCode();
             $data['message'] = $exception->getMessage();
         } elseif ($exception instanceof HttpException) {
             $data = HttpUtils::normalizeHttpError($exception->getStatusCode());

@@ -2,6 +2,7 @@
 
 namespace App\Entity\Rental;
 
+use App\Entity\Agency;
 use App\Entity\Car\Car;
 use App\Entity\Enum\Rental\RentalContractEnum;
 use App\Entity\Enum\Rental\RentalStatusEnum;
@@ -9,7 +10,11 @@ use App\Entity\User\User;
 
 interface RentalInterface
 {
-    public function getContract(): ?RentalContractEnum;
+    public function getAgency(): ?Agency;
+
+    public function setAgency(Agency $agency): static;
+
+    public function getContract(): ?string;
 
     public function setContract(RentalContractEnum $contract): static;
 
@@ -29,11 +34,11 @@ interface RentalInterface
 
     public function setToDate(\DateTimeInterface $toDate): static;
 
-    public function getPrice(): ?string;
+    public function getPrice(): ?int;
 
-    public function setPrice(string $price): static;
+    public function setPrice(string $price = null): ?static;
 
-    public function getStatus(): ?RentalStatusEnum;
+    public function getStatus(): ?string;
 
     public function setStatus(RentalStatusEnum $status): static;
 

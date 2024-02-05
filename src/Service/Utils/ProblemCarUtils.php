@@ -5,6 +5,7 @@ namespace App\Service\Utils;
 use App\Entity\Agency;
 use App\Entity\Car\Car;
 use App\Entity\Car\ProblemCar;
+use App\Entity\Enum\Car\CarStatusEnum;
 use App\Repository\AgencyRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Faker;
@@ -27,8 +28,11 @@ class ProblemCarUtils
         }
 
         $car = self::getRandomCarInRandomAgency($agencies);
-        $problemCar = self::createProblemCar($car instanceof Car ? $car : new Car());
+        $car = $car instanceof Car ? $car : new Car();
 
+        $problemCar = self::createProblemCar($car);
+
+        $car->setStatus(CarStatusEnum::PROBLEM);
         $this->em->persist($problemCar);
         $this->em->flush();
     }
@@ -39,11 +43,13 @@ class ProblemCarUtils
     private static function getRandomCarInRandomAgency(array $agencies): ?Car
     {
         $randomAgency = $agencies[array_rand($agencies)]; // Get agency by a random key
+
         // Check if agency is an Instance of Agency and get its cars
-        $cars = $randomAgency->getCars();
+        // And filter cars to return only those that are not available
+        $cars = array_filter($randomAgency->getCars()->toArray(), fn ($car) => CarStatusEnum::AVAILABLE !== $car->getBrutStatus());
 
         // If the agency has cars, select one at random and create a problem or recall this function
-        return !$cars->isEmpty() ? $cars[array_rand($cars->toArray())] : self::getRandomCarInRandomAgency($agencies);
+        return count($cars) > 0 ? $cars[array_rand($cars)] : self::getRandomCarInRandomAgency($agencies);
     }
 
     private static function createProblemCar(Car $car): ProblemCar
