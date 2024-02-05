@@ -50,7 +50,7 @@ final readonly class CurrentUserExtension implements QueryCollectionExtensionInt
             $queryBuilder->andWhere(sprintf('%s.status != :problem_status', $rootAlias));
             $queryBuilder->setParameter('problem_status', 3);
         } elseif (Rental::class === $resourceClass && $user instanceof User) {
-            $queryBuilder->andWhere(sprintf('%s.employee_id = :current_user or %s.customer_id = :current_user', $rootAlias, $rootAlias));
+            $queryBuilder->andWhere(sprintf('%s.employee = :current_user or %s.customer = :current_user', $rootAlias, $rootAlias));
             $queryBuilder->setParameter('current_user', $user->getId());
         }
     }

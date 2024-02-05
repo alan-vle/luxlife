@@ -64,28 +64,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
-    #[Assert\NotBlank(message: 'The first name should not be blank.')]
+    #[Assert\NotBlank(message: 'The full name should not be blank.')]
     #[Assert\Length(
         min: 2,
-        max: 50,
-        minMessage: 'Your first name must be at least {{ limit }} characters long.',
-        maxMessage: 'Your first name cannot be longer than {{ limit }} characters.',
+        max: 100,
+        minMessage: 'The full name must be at least {{ limit }} characters long.',
+        maxMessage: 'The full name cannot be longer than {{ limit }} characters.',
     )]
     #[Groups(['user:read', 'user:write'])]
-    #[ORM\Column(length: 50)]
-    private ?string $firstName = null;
-
-    #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
-    #[Assert\NotBlank(message: 'The last name should not be blank.')]
-    #[Assert\Length(
-        min: 2,
-        max: 50,
-        minMessage: 'The last name must be at least {{ limit }} characters long.',
-        maxMessage: 'The last name cannot be longer than {{ limit }} characters.',
-    )]
-    #[Groups(['user:read', 'user:write'])]
-    #[ORM\Column(length: 50)]
-    private ?string $lastName = null;
+    #[ORM\Column(length: 100)]
+    private ?string $fullName = null;
 
     #[Assert\Email(message: 'The email {{ value }} is not a valid email.')]
     #[Assert\NotBlank(message: 'The email should not be blank.')]
@@ -312,26 +300,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->plainPassword = null;
     }
 
-    public function getFirstName(): ?string
+    public function getFullName(): ?string
     {
-        return ucfirst($this->firstName ?: '');
+        return ucfirst($this->fullName ?: '');
     }
 
-    public function setFirstName(string $firstName): static
+    public function setFullName(string $fullName): static
     {
-        $this->firstName = $firstName;
-
-        return $this;
-    }
-
-    public function getLastName(): ?string
-    {
-        return ucfirst($this->lastName ?: '');
-    }
-
-    public function setLastName(string $lastName): static
-    {
-        $this->lastName = $lastName;
+        $this->fullName = $fullName;
 
         return $this;
     }

@@ -42,14 +42,13 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
 
             $user->isFixtures = true;
             $user
-                ->setFirstName(self::isString($userData['first_name']))
-                ->setLastName(self::isString($userData['last_name']))
+                ->setFullName(self::isString($userData['first_name']).' '.self::isString($userData['last_name']))
                 ->setEmail(self::isString($userData['email']))
                 ->setPassword($this->passwordHasherFnc($user, self::isString($userData['password'])))
                 ->setAddress(self::isString($userData['address']))
                 ->setBirthDate(new \DateTime(self::isString($userData['birth_date'])))
                 /* @phpstan-ignore-next-line | Because he can't detect methods of FR faker provider */
-                ->setPhoneNumber($this->phoneNumberStandardization($faker->mobileNumber()))
+                ->setPhoneNumber($faker->randomNumber(9, true))
                 ->setAgency(array_key_exists('agency', $userData) ? self::isInstanceOfAgency($userData['agency']) : null)
                 ->setRoles(is_array($userData['roles']) ? $userData['roles'] : [])
             ;
@@ -97,14 +96,6 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
     private static function isString(mixed $value): string
     {
         return is_string($value) ? $value : '';
-    }
-
-    /**
-     * Remove prefix of number : 0, +33, (0).
-     */
-    private function phoneNumberStandardization(string $phoneNumber): ?string
-    {
-        return preg_replace('/^\+33|^0|\s+|\(0\)/', '', $phoneNumber);
     }
 
     /**
