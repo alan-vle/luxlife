@@ -53,6 +53,7 @@ security:
         - { path: ^/cars, roles: PUBLIC_ACCESS}
         - { path: ^/problem-cars/generator, roles: PUBLIC_ACCESS}
         - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
+        - { path: '^/forgot-password', role: PUBLIC_ACCESS }
 
 when@test:
     security:
