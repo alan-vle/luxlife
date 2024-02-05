@@ -26,15 +26,13 @@ class RentalFixtures extends Fixture implements DependentFixtureInterface
         foreach ($rentals as $rentalData) {
             $rental = new Rental();
             $rental->isFixtures = true;
-
+            $car = is_string($rentalData['car']) ? $this->isInstanceOfCar($rentalData['car']) : throw new \Exception();
             $rental
                 ->setCustomer(is_string($rentalData['customer']) ? $this->isInstanceOfUser($rentalData['customer']) : throw new \Exception())
                 ->setEmployee(
                     array_key_exists('employee', $rentalData) && is_string($rentalData['employee'])
                         ? $this->isInstanceOfUser($rentalData['employee']) : null)
-                ->setCar(
-                    is_string($rentalData['car']) ? $this->isInstanceOfCar($rentalData['car']) : throw new \Exception()
-                )
+                ->setCar($car)
                 ->setContract(
                     $rentalData['contract'] instanceof RentalContractEnum ? $rentalData['contract'] : throw new \Exception()
                 )
@@ -46,7 +44,9 @@ class RentalFixtures extends Fixture implements DependentFixtureInterface
                 ->setStatus(
                     $rentalData['status'] instanceof RentalStatusEnum ? $rentalData['status'] : RentalStatusEnum::DRAFT
                 )
+                ->setAgency($car->getAgency())
             ;
+
             $manager->persist($rental);
 
             if (RentalStatusEnum::DELIVERY === $rental->getBrutStatus()) {

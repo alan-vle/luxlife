@@ -12,12 +12,13 @@ use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 
-class ConfirmEmailService
+class MailerService
 {
     public function __construct(
         private readonly MailerInterface $mailer,
         private readonly EntityManagerInterface $em,
         #[Autowire('%react_app_url%')] private readonly string $reactAppUrl,
+        #[Autowire('%api_url%')] private readonly string $apiUrl,
     ) {
     }
 
@@ -40,21 +41,37 @@ class ConfirmEmailService
         $this->em->persist($emailVerifierToken);
         $this->em->flush();
 
-        $url = $this->reactAppUrl.'/confirm-email/'.$emailVerifierToken->getUuid();
+        $url = $this->apiUrl.'/confirm-email/'.$emailVerifierToken->getUuid();
 
         // Create a signed url for allow access to confirm email controller
-        $signedUrl = UrlSignedCreator::getSignedUrlBySpatieBundle($url, $expirationDate);
+        $signedUrl = UrlSignedCreator::getSignedUrlBySpatieBundle($url, $expirationDate, $emailVerifierToken->getUuid());
 
+        // Replace prefix of signed url for react
+        $reactUrl = str_replace($this->apiUrl, $this->reactAppUrl, $signedUrl);
+
+        $emailParams['to'] = $userEmail;
+        $emailParams['subject'] = 'Thanks for signing up!';
+        $emailParams['html_template'] = 'emails/users/confirm-email.html.twig';
+        $emailParams['context'] = [
+            'expiration_date' => $expirationDate,
+            'name_new_user' => $user->getFirstName().' '.$user->getLastName(),
+            'url' => $signedUrl,
+        ];
+
+        $this->sendEmail($emailParams);
+    }
+
+    /**
+     * @param array<string, array<string, \DateTime|string>|string> $emailParams
+     */
+    public function sendEmail(array $emailParams): void
+    {
         // Send an email for new user
         $email = (new NotificationEmail())
-            ->to(new Address($userEmail))
-            ->subject('Thanks for signing up!')
-            ->htmlTemplate('emails/users/confirm-email.html.twig')
-            ->context([
-                'expiration_date' => (new \DateTime('now'))->add(new \DateInterval('P1D')),
-                'name_new_user' => $user->getFirstName().' '.$user->getLastName(),
-                'url' => $signedUrl,
-            ])
+            ->to(new Address($emailParams['to'])) /* @phpstan-ignore-line */
+            ->subject($emailParams['subject']) /* @phpstan-ignore-line */
+            ->htmlTemplate($emailParams['html_template']) /* @phpstan-ignore-line */
+            ->context($emailParams['context']) /* @phpstan-ignore-line */
         ;
 
         // Set transport conf for this mail

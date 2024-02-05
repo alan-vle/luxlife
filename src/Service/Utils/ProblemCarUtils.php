@@ -43,11 +43,13 @@ class ProblemCarUtils
     private static function getRandomCarInRandomAgency(array $agencies): ?Car
     {
         $randomAgency = $agencies[array_rand($agencies)]; // Get agency by a random key
+
         // Check if agency is an Instance of Agency and get its cars
-        $cars = $randomAgency->getCars();
+        // And filter cars to return only those that are not available
+        $cars = array_filter($randomAgency->getCars()->toArray(), fn ($car) => CarStatusEnum::AVAILABLE !== $car->getBrutStatus());
 
         // If the agency has cars, select one at random and create a problem or recall this function
-        return !$cars->isEmpty() ? $cars[array_rand($cars->toArray())] : self::getRandomCarInRandomAgency($agencies);
+        return count($cars) > 0 ? $cars[array_rand($cars)] : self::getRandomCarInRandomAgency($agencies);
     }
 
     private static function createProblemCar(Car $car): ProblemCar

@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Entity\Car\Car;
 use App\Entity\Enum\AgencyStatusEnum;
+use App\Entity\Rental\Rental;
 use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
 use App\Entity\User\User;
@@ -123,11 +124,24 @@ class Agency
     #[ORM\OneToMany(mappedBy: 'agency', targetEntity: Review::class, orphanRemoval: true)]
     private Collection $reviews;
 
+    /**
+     * @var ArrayCollection<int, Rental> $rentals
+     */
+    #[ORM\OneToMany(mappedBy: 'agency', targetEntity: Rental::class)]
+    private Collection $rentals;
+
+    /**
+     * @var ArrayCollection<int, Rental> $archivedRentals
+     */
+    #[ORM\OneToMany(mappedBy: 'agency', targetEntity: Rental::class)]
+    private Collection $archivedRentals; /* @phpstan-ignore-line */
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
         $this->cars = new ArrayCollection();
         $this->reviews = new ArrayCollection();
+        $this->rentals = new ArrayCollection();
     }
 
     public function getDirector(): ?User
@@ -332,5 +346,43 @@ class Agency
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Rental>
+     */
+    public function getRentals(): Collection
+    {
+        return $this->rentals;
+    }
+
+    public function addRental(Rental $rental): static
+    {
+        if (!$this->rentals->contains($rental)) {
+            $this->rentals->add($rental);
+            $rental->setAgency($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRental(Rental $rental): static
+    {
+        if ($this->rentals->removeElement($rental)) {
+            // set the owning side to null (unless already changed)
+            if ($rental->getAgency() === $this) {
+                $rental->setAgency(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Rental>
+     */
+    public function getArchivedRentals(): Collection
+    {
+        return $this->archivedRentals;
     }
 }

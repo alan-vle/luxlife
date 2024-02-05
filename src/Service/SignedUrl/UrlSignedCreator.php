@@ -2,9 +2,8 @@
 
 namespace App\Service\SignedUrl;
 
-// use CoopTilleuls\UrlSignerBundle\UrlSigner\UrlSignerInterface;
-
 use Spatie\UrlSigner\Sha256UrlSigner;
+use Symfony\Component\Uid\Uuid;
 
 class UrlSignedCreator
 {
@@ -23,13 +22,13 @@ class UrlSignedCreator
         //        return self::$urlSigner->sign($url, $expiration);
     }
 
-    public static function getSignedUrlBySpatieBundle(string $url, \DateTime|string $expirationDate): string
+    public static function getSignedUrlBySpatieBundle(string $url, \DateTime|string $expirationDate, Uuid|string|null $secretKey): string
     {
         if (!$expirationDate instanceof \DateTime) {
             $expirationDate = (new \DateTime('now'))->add(new \DateInterval($expirationDate));
         }
 
-        $urlSigner = new Sha256UrlSigner('A15EZEQS257854EZASDZZNJK');
+        $urlSigner = new Sha256UrlSigner((string) $secretKey);
 
         return $urlSigner->sign($url, $expirationDate);
     }

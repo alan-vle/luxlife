@@ -161,6 +161,11 @@ class Car
         return EnumUtils::nameNormalizer($this->status);
     }
 
+    public function getBrutStatus(): ?CarStatusEnum
+    {
+        return $this->status;
+    }
+
     public function setStatus(CarStatusEnum $status): static
     {
         $this->status = $status;

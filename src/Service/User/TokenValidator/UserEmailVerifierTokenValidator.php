@@ -4,14 +4,14 @@ namespace App\Service\User\TokenValidator;
 
 use App\Entity\User\User;
 use App\Entity\User\Verifier\EmailVerifierToken;
-use App\Service\Mailer\ConfirmEmailService;
+use App\Service\Mailer\MailerService;
 use Doctrine\ORM\EntityManagerInterface;
 
 class UserEmailVerifierTokenValidator implements UserVerifierTokenValidatorInterface
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly ConfirmEmailService $confirmEmailService
+        private readonly MailerService $confirmEmailService
     ) {
     }
 

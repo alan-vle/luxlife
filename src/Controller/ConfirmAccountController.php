@@ -11,9 +11,11 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
+#[AsController]
 class ConfirmAccountController extends AbstractController
 {
     public function __construct(
@@ -22,14 +24,14 @@ class ConfirmAccountController extends AbstractController
     }
 
     #[Route('/confirm-email/{uuid}', name: 'app_confirm_email', defaults: ['_signed' => true], methods: ['GET'])]
-    public function confirmEmail(EmailVerifierToken $emailVerifierToken, Request $request, EntityManagerInterface $em): JsonResponse
+    public function __invoke(EmailVerifierToken $emailVerifierToken, Request $request, EntityManagerInterface $em): JsonResponse
     {
         // If user is logged so force logout
         if ($this->security->getUser()) {
             $this->security->logout(false);
         }
 
-        $urlSigner = new Sha256UrlSigner('A15EZEQS257854EZASDZZNJK');
+        $urlSigner = new Sha256UrlSigner((string) $emailVerifierToken->getUuid());
         $absoluteUrl = $request->getUri();
         $user = $emailVerifierToken->getUser();
 
@@ -38,7 +40,7 @@ class ConfirmAccountController extends AbstractController
         if (!$urlSigner->validate($absoluteUrl) || !$user instanceof User
             || $user->isVerifiedEmail() || $user->getEmail() !== $emailVerifierToken->getEmail()
         ) {
-            // Then remove the emailVerifierToken in db
+            // Then remove the email verifier token
             $em->remove($emailVerifierToken);
             $em->flush();
 
