@@ -54,7 +54,7 @@ class MailerService
         $emailParams['html_template'] = 'emails/users/confirm-email.html.twig';
         $emailParams['context'] = [
             'expiration_date' => $expirationDate,
-            'name_new_user' => $user->getFirstName().' '.$user->getLastName(),
+            'name_new_user' => $user->getFullName(),
             'url' => $signedUrl,
         ];
 
@@ -62,7 +62,7 @@ class MailerService
     }
 
     /**
-     * @param array<string, array<string, \DateTime|string>|string> $emailParams
+     * @param array<string, array<string, \DateTime|string|null>|string> $emailParams
      */
     public function sendEmail(array $emailParams): void
     {
