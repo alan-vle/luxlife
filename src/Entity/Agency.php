@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -47,6 +49,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[Patch(security: "is_granted('ROLE_ADMIN') or object.getDirector() == user")]
 #[Delete(security: "is_granted('ROLE_ADMIN')")]
+#[ApiFilter(SearchFilter::class, properties: ['address' => 'ipartial', 'city' => 'ipartial'])]
 #[ORM\HasLifecycleCallbacks]
 class Agency
 {

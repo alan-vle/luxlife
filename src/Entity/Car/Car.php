@@ -24,8 +24,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Entity(repositoryClass: CarRepository::class)]
 #[ORM\Table(name: '`car`')]
@@ -38,6 +40,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     //    normalizationContext: ['groups' => ['manufacturer:read', 'manufacturer-admin:read']]
 )]
 #[Post(
+    inputFormats: ['multipart' => ['multipart/form-data']],
     security: "is_granted('ROLE_DIRECTOR')",
     securityPostDenormalize: "is_granted('ROLE_ADMIN') or object.getAgency().getDirector() == user",
     validationContext: ['groups' => ['Default', 'car:write']]
@@ -58,6 +61,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     'agency' => 'exact',
     'manufacturer' => 'exact',
 ])]
+#[Vich\Uploadable]
 #[ORM\HasLifecycleCallbacks]
 class Car
 {
@@ -117,8 +121,24 @@ class Car
     #[ORM\OneToMany(mappedBy: 'car', targetEntity: RentalArchived::class)]
     private Collection $rentalsArchived;
 
+    #[Groups(['car:write'])]
     #[ORM\Column(type: Types::DECIMAL, precision: 8, scale: 2)]
     private ?string $price_per_kilometer = null;
+
+    #[ApiProperty(types: ['https://schema.org/contentUrl'])]
+    #[Groups(['car:read'])]
+    public ?string $contentUrl = null;
+
+    #[Vich\UploadableField(mapping: 'terms_and_conditions_mapper', fileNameProperty: 'filePath')]
+    #[Groups(['terms-and-conditions:write'])]
+    public ?File $file = null;
+
+    #[ORM\Column(nullable: false)]
+    public ?string $filePath = null;
+    public function getContentUrl(): ?string
+    {
+        return $this->filePath ? '/uploads/cars/'.$this->filePath : null;
+    }
 
     public function __construct()
     {

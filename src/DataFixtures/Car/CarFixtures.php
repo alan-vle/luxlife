@@ -7,13 +7,21 @@ use App\Entity\Agency;
 use App\Entity\Car\Car;
 use App\Entity\Car\Manufacturer;
 use App\Entity\Enum\Car\CarStatusEnum;
+use App\Service\Utils\ImageUploader;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 use Faker;
+use Symfony\Component\CssSelector\Exception\InternalErrorException;
+use Symfony\Component\HttpFoundation\File\File;
 
 class CarFixtures extends Fixture implements DependentFixtureInterface
 {
+    public function __construct(
+        private readonly ImageUploader $imageUploader
+    ) {
+    }
+
     public const TESLA_MODEL_S_REF = 'tesla-model-s-car-ref';
     public const AUDI_TT_REF = 'audi-tt-car-ref';
     public const AUDI_R8_REF = 'audi-r8-car-ref';
@@ -27,7 +35,7 @@ class CarFixtures extends Fixture implements DependentFixtureInterface
 
         foreach ($cars as $carData) {
             $car = new Car();
-
+            $car->filePath = $this->imageUploader->upload($carData['image']);
             $car
                 ->setManufacturer(
                     $this->isInstanceOfManufacturer(
@@ -52,6 +60,8 @@ class CarFixtures extends Fixture implements DependentFixtureInterface
 
         for ($i = 0; $i < 5; ++$i) {
             $car = new Car();
+            $uploadedFileName = $faker->image('/srv/luxlife/public/uploads/cars', 360, 360, 'cars');;
+            $car->filePath =  substr(strstr($uploadedFileName, 'cars/'), strlen('cars/'));
 
             $car
                 ->setManufacturer($this->isInstanceOfManufacturer($manufacturers[array_rand($manufacturers)]))
@@ -90,14 +100,17 @@ class CarFixtures extends Fixture implements DependentFixtureInterface
     }
 
     /**
-     * @return array<int, array<string, CarStatusEnum|int|string>>
+     * @return array<int, array<string, CarStatusEnum|int|string|File>>
      */
     private function getCarsData(): array
     {
+        $imagesDir = __DIR__.'/Images';
+
         return [
             [
                 'manufacturer' => ManufacturerFixtures::TESLA_REF,
                 'model' => 'Model S',
+                'image' => $imagesDir.'/background-car.png',
                 'price_per_km' => 7,
                 'kilometers' => 10000,
                 'status' => CarStatusEnum::RESERVED,
@@ -106,6 +119,7 @@ class CarFixtures extends Fixture implements DependentFixtureInterface
             [
                 'manufacturer' => ManufacturerFixtures::AUDI_REF,
                 'model' => 'TT',
+                'image' => $imagesDir.'/audi.png',
                 'price_per_km' => 10,
                 'kilometers' => 40000,
                 'status' => CarStatusEnum::RENTED,
@@ -114,6 +128,7 @@ class CarFixtures extends Fixture implements DependentFixtureInterface
             [
                 'manufacturer' => ManufacturerFixtures::AUDI_REF,
                 'model' => 'R8',
+                'image' => $imagesDir.'/Audi-PNG-Clipart.png',
                 'price_per_km' => 11,
                 'kilometers' => 74000,
                 'status' => CarStatusEnum::AVAILABLE,
@@ -122,6 +137,7 @@ class CarFixtures extends Fixture implements DependentFixtureInterface
             [
                 'manufacturer' => ManufacturerFixtures::AUDI_REF,
                 'model' => 'Q2',
+                'image' => $imagesDir.'/audi_s5_sportback_tdi_2019_4k-HD.jpg',
                 'price_per_km' => 4,
                 'kilometers' => 28000,
                 'status' => CarStatusEnum::RENTED,
@@ -130,6 +146,7 @@ class CarFixtures extends Fixture implements DependentFixtureInterface
             [
                 'manufacturer' => ManufacturerFixtures::AUDI_REF,
                 'model' => 'Q3',
+                'image' => $imagesDir.'/audi_18a7sprtbkslinehb2b_angularfront-std.png',
                 'price_per_km' => 5,
                 'kilometers' => 170000,
                 'status' => CarStatusEnum::PROBLEM,

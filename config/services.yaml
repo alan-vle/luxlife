@@ -4,6 +4,7 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    cars_directory: '%kernel.project_dir%/public/uploads/cars'
     react_app_url_dev: http://localhost:8080
     react_app_url: "%env(string:default:react_app_url_dev:REACT_APP_URL)%"
     # Back url (dev | prod)
