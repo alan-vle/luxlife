@@ -3,20 +3,28 @@
 namespace App\EventSubscriber;
 
 use App\Exception\CustomException;
+use App\Service\Mailer\MailerService;
 use CoopTilleuls\ForgotPasswordBundle\Event\CreateTokenEvent;
 use CoopTilleuls\ForgotPasswordBundle\Event\UpdatePasswordEvent;
 use CoopTilleuls\ForgotPasswordBundle\Event\UserNotFoundEvent;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 final class ForgotPasswordSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly Security $security,
+        #[Autowire('%react_app_url%')] private readonly string $reactAppUrl,
+        private readonly MailerService $mailerService,
+        private readonly UserPasswordHasherInterface $hasher,
+        private readonly EntityManagerInterface $em
     ) {
     }
 
@@ -48,17 +56,15 @@ final class ForgotPasswordSubscriber implements EventSubscriberInterface
         $passwordToken = $event->getPasswordToken();
         $user = $passwordToken->getUser();
 
-        $message = (new Email())
-            ->from('no-reply@example.com')
-            ->to($user->getEmail())
-            ->subject('Reset your password')
-            ->html($this->twig->render(
-                'App:ResetPassword:mail.html.twig',
-                [
-                    'reset_password_url' => sprintf('https://www.example.com/forgot-password/%s', $passwordToken->getToken()),
-                ]
-            ));
-        $this->mailer->send($message);
+        $emailParams['to'] = $user->getEmail();
+        $emailParams['subject'] = 'Demande de rénitialisation du mot de passe';
+        $emailParams['html_template'] = 'emails/users/reset-password.html.twig';
+        $emailParams['context'] = [
+            'name_user' => $user->getFullName(),
+            'reset_password_url' => sprintf($this->reactAppUrl.'/forgot_password/%s', $passwordToken->getToken()),
+        ];
+
+        $this->mailerService->sendEmail($emailParams);
 
         self::generalizedResponse();
     }
@@ -67,8 +73,11 @@ final class ForgotPasswordSubscriber implements EventSubscriberInterface
     {
         $passwordToken = $event->getPasswordToken();
         $user = $passwordToken->getUser();
-        $user->setPlainPassword($event->getPassword());
-        $this->userManager->updateUser($user);
+        $newHashedPassword = $this->hasher->hashPassword($user, $event->getPassword());
+
+        $user->setPassword($newHashedPassword);
+        $this->em->flush();
+
     }
 
     public function onUserNotFound(UserNotFoundEvent $event): void

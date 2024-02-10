@@ -27,7 +27,6 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Constraints\PasswordStrength;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`app_user`')]
@@ -97,9 +96,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         minMessage: 'The password must be at least {{ limit }} characters long',
         maxMessage: 'The password cannot be longer than {{ limit }} characters',
     )]
-    #[Assert\PasswordStrength([
-        'minScore' => PasswordStrength::STRENGTH_MEDIUM, // Strong password required
-    ])]
+    #[Assert\Regex(
+        pattern: '/^(?=(.*[!@#?].*[!@#?]))(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/',
+        message: 'Non-conforming password.',
+        match: true
+    )]
     #[Groups(['user:read', 'user:write', 'user:update'])]
     private ?string $plainPassword = null;
 
@@ -216,7 +217,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function setEmail(string $email): static
     {
-        $this->email = $email;
+        $this->email = strtolower($email);
 
         return $this;
     }
