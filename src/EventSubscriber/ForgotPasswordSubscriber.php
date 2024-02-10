@@ -1,4 +1,5 @@
 <?php
+
 namespace App\EventSubscriber;
 
 use App\Exception\CustomException;
@@ -16,8 +17,7 @@ final class ForgotPasswordSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly Security $security,
-    )
-    {
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -26,7 +26,7 @@ final class ForgotPasswordSubscriber implements EventSubscriberInterface
             // Symfony 4.3 and inferior, use 'kernel.request' event name
             KernelEvents::REQUEST => 'onKernelRequest',
             CreateTokenEvent::class => 'onCreateToken',
-            UpdatePasswordEvent::class => 'onUpdatePassword'
+            UpdatePasswordEvent::class => 'onUpdatePassword',
         ];
     }
 
@@ -39,7 +39,7 @@ final class ForgotPasswordSubscriber implements EventSubscriberInterface
         // User should not be authenticated on forgot password
         $token = $this->security->getToken();
         if (null !== $token && $token->getUser() instanceof UserInterface) {
-            throw new AccessDeniedHttpException;
+            throw new AccessDeniedHttpException();
         }
     }
 

@@ -43,7 +43,7 @@ class VerifiedStateAccountSubscriber implements EventSubscriberInterface
         // Check if a user email token has been generated
         $this->emailTokenValidator->isAlreadyGenerated($user);
 
-        $event->setResponse(new JsonResponse($this->normalizeBadAccountStateData($user)));
+        $event->setResponse(new JsonResponse($this->normalizeBadAccountStateData($user), 400));
     }
 
     /**
@@ -54,7 +54,7 @@ class VerifiedStateAccountSubscriber implements EventSubscriberInterface
     private function normalizeBadAccountStateData(User $user): array
     {
         return [
-            'status' => 'error',
+            'status' => 400,
             'message' => match (false) {
                 $user->isActive() => 'Your account is deactivate.',
                 $user->isVerifiedEmail() => 'Your email is not verified.',

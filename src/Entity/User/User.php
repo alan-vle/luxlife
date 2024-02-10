@@ -115,7 +115,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 130, nullable: true)]
     private ?string $address = null;
 
-    //    #[Assert\Date]
     #[Assert\NotBlank(message: 'The birth date should not be blank.', groups: ['user:write'])]
     #[Assert\LessThanOrEqual('-18 years', message: 'You should have 18 years old or more.')]
     #[Groups(['user:read', 'user:write'])]

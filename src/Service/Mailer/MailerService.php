@@ -55,7 +55,7 @@ class MailerService
         $emailParams['context'] = [
             'expiration_date' => $expirationDate,
             'name_new_user' => $user->getFullName(),
-            'url' => $signedUrl,
+            'url' => $reactUrl,
         ];
 
         $this->sendEmail($emailParams);
