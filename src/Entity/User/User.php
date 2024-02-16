@@ -351,7 +351,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getAgency(): ?Agency
     {
         return $this->agency;
-        //        return $this->agency instanceof Agency ? $this->agency : new Agency();
     }
 
     public function setAgency(?Agency $agency): static

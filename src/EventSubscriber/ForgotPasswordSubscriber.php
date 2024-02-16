@@ -57,11 +57,11 @@ final class ForgotPasswordSubscriber implements EventSubscriberInterface
         $user = $passwordToken->getUser();
 
         $emailParams['to'] = $user->getEmail();
-        $emailParams['subject'] = 'Demande de rénitialisation du mot de passe';
+        $emailParams['subject'] = 'Demande de réinitialisation du mot de passe';
         $emailParams['html_template'] = 'emails/users/reset-password.html.twig';
         $emailParams['context'] = [
             'name_user' => $user->getFullName(),
-            'reset_password_url' => sprintf($this->reactAppUrl.'/forgot_password/%s', $passwordToken->getToken()),
+            'reset_password_url' => sprintf($this->reactAppUrl.'/reset-password/%s', $passwordToken->getToken()),
         ];
 
         $this->mailerService->sendEmail($emailParams);

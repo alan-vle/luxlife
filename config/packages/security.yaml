@@ -48,11 +48,11 @@ security:
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/register, roles: PUBLIC_ACCESS }
         - { path: ^/confirm-email/[^/]+, roles: PUBLIC_ACCESS}
+        - { path: ^/forgot_password, role: PUBLIC_ACCESS }
         - { path: ^/agencies, roles: PUBLIC_ACCESS}
         - { path: ^/manufacturers, roles: PUBLIC_ACCESS}
         - { path: ^/cars, roles: PUBLIC_ACCESS}
         - { path: ^/problem-cars/generator, roles: PUBLIC_ACCESS}
-        - { path: '^/forgot_password', role: PUBLIC_ACCESS }
         - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:

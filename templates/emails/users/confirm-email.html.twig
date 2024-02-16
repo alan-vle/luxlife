@@ -4,11 +4,12 @@
             <row class="header">
                 <columns>
                     <img src="{{ email.image('@images/logo.png') }}" alt="Logo"/> <br /> <br />
-                    <h1>Welcome to luxlife {{ name_new_user }} !</h1>
-                    <p><button href="{{ url }}">Click here to activate your account</button></p>
-                    <p>You have 24h to confirm your account.<br /></p> <br />
+                    <h1>Bienvenue {{ name_new_user }} !</h1>
+                    <p><button href="{{ url }}">Cliquez ici pour confirmer votre email</button></p>
+                    <p>Ce lien est valide 24h.<br /></p> <br />
                 </columns>
             </row>
+            {% include 'emails/components/_footer.html.twig' %}
         </container>
     {% endapply %}
 {% endapply %}
