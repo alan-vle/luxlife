@@ -91,7 +91,7 @@ class Car
     #[ORM\Column(type: Types::SMALLINT, enumType: CarStatusEnum::class)]
     private ?CarStatusEnum $status = null;
 
-    #[ApiProperty(readableLink: false, writableLink: false)]
+    #[ApiProperty(readableLink: true, writableLink: false)]
     #[Groups(['car:read', 'car:write'])]
     #[ORM\ManyToOne(inversedBy: 'cars')]
     #[ORM\JoinColumn(nullable: false)]

@@ -72,7 +72,7 @@ class Agency
     #[Assert\NotBlank(message: 'The city should not be blank.')]
     #[Assert\Regex(pattern: '/^[a-zA-Z0-9\s\-\',]*$/', message: 'The {{ value }} is not a valid city.')]
     #[Assert\Length(max: 50, maxMessage: 'The address cannot be longer than {{ limit }} characters')]
-    #[Groups(['agency:read', 'agency:write'])]
+    #[Groups(['agency:read', 'agency:write', 'car:read'])]
     #[ORM\Column(length: 50)]
     private ?string $city = null;
 
@@ -86,13 +86,13 @@ class Agency
 
     #[Assert\Type(type: 'object', message: 'The value {{ value }} is not a valid {{ type }}.')]
     #[Assert\NotBlank]
-    #[Groups(['agency:read', 'agency:write'])]
+    #[Groups(['agency:read', 'agency:write', 'car:read'])]
     #[ORM\Column(type: Types::TIME_MUTABLE)]
     private ?\DateTimeInterface $openingHours = null;
 
     #[Assert\Type(type: 'object', message: 'The value {{ value }} is not a valid {{ type }}.')]
     #[Assert\NotBlank]
-    #[Groups(['agency:read', 'agency:write'])]
+    #[Groups(['agency:read', 'agency:write', 'car:read'])]
     #[ORM\Column(type: Types::TIME_MUTABLE)]
     private ?\DateTimeInterface $closingHours = null;
 
@@ -108,7 +108,7 @@ class Agency
     #[ORM\Column(type: Types::SMALLINT, enumType: AgencyStatusEnum::class)]
     private ?AgencyStatusEnum $status = null;
 
-    #[Groups(['agency:read'])]
+    #[Groups(['agency:read', 'car:read'])]
     private bool $isOpen = false;
 
     /**
