@@ -6,6 +6,7 @@ use App\Entity\User\User;
 use App\Entity\User\Verifier\EmailVerifierToken;
 use App\Service\Mailer\MailerService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 class UserEmailVerifierTokenValidator implements UserVerifierTokenValidatorInterface
 {
@@ -15,11 +16,18 @@ class UserEmailVerifierTokenValidator implements UserVerifierTokenValidatorInter
     ) {
     }
 
-    //    public static function isValid(EmailVerifierToken $emailVerifierToken, User $user)
-    //    {
-    //
-    //    }
+    /**
+     * @throws TransportExceptionInterface
+     */
+    public function generate(User $user): void
+    {
+        $this->confirmEmailService->sendConfirmationEmail($user);
+    }
 
+
+    /**
+     * @throws TransportExceptionInterface
+     */
     public function isAlreadyGenerated(User $user): void
     {
         $emailVerifierToken = self::isExists($user->getId());

@@ -25,6 +25,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -49,7 +50,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[Patch(security: "is_granted('ROLE_ADMIN') or object.getDirector() == user")]
 #[Delete(security: "is_granted('ROLE_ADMIN')")]
-#[ApiFilter(SearchFilter::class, properties: ['address' => 'ipartial', 'city' => 'ipartial'])]
+#[ApiFilter(SearchFilter::class, properties: [
+    'address' => 'ipartial',
+    'city' => 'ipartial',
+    'status' => 'exact',
+])]
 #[ORM\HasLifecycleCallbacks]
 class Agency
 {
@@ -72,7 +77,7 @@ class Agency
     #[Assert\NotBlank(message: 'The city should not be blank.')]
     #[Assert\Regex(pattern: '/^[a-zA-Z0-9\s\-\',]*$/', message: 'The {{ value }} is not a valid city.')]
     #[Assert\Length(max: 50, maxMessage: 'The address cannot be longer than {{ limit }} characters')]
-    #[Groups(['agency:read', 'agency:write', 'car:read'])]
+    #[Groups(['agency:read', 'agency:write', 'user:read', 'car:read'])]
     #[ORM\Column(length: 50)]
     private ?string $city = null;
 
@@ -138,6 +143,10 @@ class Agency
      */
     #[ORM\OneToMany(mappedBy: 'agency', targetEntity: Rental::class)]
     private Collection $archivedRentals; /* @phpstan-ignore-line */
+
+    #[ApiProperty(security: "is_granted('ROLE_ADMIN') or object.getDirector() == user")]
+    #[Groups(['agency-admin:read', 'agency-director:read'])]
+    private ?int $totalRentals = null;
 
     public function __construct()
     {
@@ -387,5 +396,10 @@ class Agency
     public function getArchivedRentals(): Collection
     {
         return $this->archivedRentals;
+    }
+
+    public function getTotalRentals(): int
+    {
+        return count($this->rentals);
     }
 }

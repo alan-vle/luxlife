@@ -2,6 +2,8 @@
 
 namespace App\Entity\User;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -16,6 +18,7 @@ use App\Entity\Rental\RentalArchived;
 use App\Entity\Review;
 use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
+use App\Filter\UserRoleFilter;
 use App\Repository\User\UserRepository;
 use App\State\UserPasswordHasher;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -35,7 +38,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     normalizationContext: ['groups' => ['user:read', 'identifier', 'timestamp']],
     denormalizationContext: ['groups' => ['user:write', 'user:update']],
 )]
-#[GetCollection(security: "is_granted('ROLE_ADMIN')")]
+#[GetCollection(security: "is_granted('ROLE_DIRECTOR')")]
 #[Get(security: "is_granted('ROLE_ADMIN') or object == user or (object.getAgency() and object.getAgency().getDirector() == user)")]
 #[Post(
     uriTemplate: '/register',
@@ -52,6 +55,12 @@ use Symfony\Component\Validator\Constraints as Assert;
     processor: UserPasswordHasher::class
 )]
 #[Delete(security: "is_granted('ROLE_ADMIN')")]
+#[ApiFilter(SearchFilter::class, properties: [
+    'fullName' => 'ipartial',
+    'email' => 'ipartial',
+    'agency.city' => 'ipartial',
+])]
+// #[ApiFilter(UserRoleFilter::class)]
 #[ORM\HasLifecycleCallbacks]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -97,7 +106,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         maxMessage: 'The password cannot be longer than {{ limit }} characters',
     )]
     #[Assert\Regex(
-        pattern: '/^(?=(.*[!@#?].*[!@#?]))(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/',
+        pattern: '^(?=(.*[!@#?].*[!@#?]))(?=.*[a-z])(?=.*[A-Z])(?=(.*\d){2,})',
         message: 'Non-conforming password.',
         match: true
     )]
@@ -155,7 +164,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?bool $active = true;
 
     #[ApiProperty(
-        readableLink: false,
+        readableLink: true,
         writableLink: false,
         security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_DIRECTOR') or is_granted('ROLE_AGENT')"
     )]

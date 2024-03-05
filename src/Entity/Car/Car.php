@@ -60,6 +60,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
     'status' => 'exact',
     'agency' => 'exact',
     'manufacturer' => 'exact',
+    'manufacturer.name' => 'ipartial',
 ])]
 #[Vich\Uploadable]
 #[ORM\HasLifecycleCallbacks]
