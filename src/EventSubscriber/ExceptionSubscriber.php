@@ -29,7 +29,7 @@ final class ExceptionSubscriber implements EventSubscriberInterface
     public function onKernelException(ExceptionEvent $event): void
     {
         $exception = $event->getThrowable();
-        dd($exception);
+
         if ($exception instanceof CustomException) {
             $data['status'] = $exception->getStatusCode();
             $data['message'] = $exception->getMessage();
@@ -44,6 +44,6 @@ final class ExceptionSubscriber implements EventSubscriberInterface
             $data['message'] = 'dev' !== $this->appEnv ? 'Something is wrong, try again later.' : $exception->getMessage();
         }
 
-        $event->setResponse(new JsonResponse($data, $data['status']));
+        $event->setResponse(new JsonResponse($data, is_int($data['status']) ? $data['status'] : 400));
     }
 }

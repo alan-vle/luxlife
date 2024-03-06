@@ -11,6 +11,7 @@ use App\Entity\Rental\Rental;
 use App\Entity\User\User;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 final readonly class CurrentUserExtension implements QueryCollectionExtensionInterface, QueryItemExtensionInterface
 {
@@ -56,11 +57,18 @@ final readonly class CurrentUserExtension implements QueryCollectionExtensionInt
                 ->andWhere(sprintf('%s.employee = :current_user or %s.customer = :current_user', $rootAlias, $rootAlias))
                 ->setParameter('current_user', $user->getId())
             ;
-        } elseif (User::class === $resourceClass && $this->security->isGranted('ROLE_DIRECTOR') && null !== $user->getAgency()) {
+        } elseif (
+            User::class === $resourceClass && $this->security->isGranted('ROLE_DIRECTOR')
+            && $user instanceof UserInterface && method_exists($user, 'getAgency') && null !== $user->getAgency()
+        ) {
             $queryBuilder
                 ->andWhere(sprintf('%s.agency = :current_user_agency', $rootAlias))
                 ->setParameter('current_user_agency', $user->getAgency())
             ;
+        } elseif (
+            User::class === $resourceClass && $this->security->isGranted('ROLE_AGENT')
+        ) {
+            $queryBuilder->andWhere(sprintf('%s.agency IS NULL', $rootAlias));
         }
     }
 }

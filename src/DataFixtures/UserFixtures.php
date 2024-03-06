@@ -121,6 +121,7 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
                 'email' => 'jhhony-punisher@luxlife.com',
                 'password' => 'azs!aAAz4a1s24e1sa',
                 'address' => 'Sans adresse.',
+                'agency' => $agencyOfMarseille,
                 'birth_date' => '1998/02/15',
                 'roles' => ['ADMIN'],
                 'ref' => self::ADMIN_REF,

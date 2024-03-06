@@ -38,7 +38,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     normalizationContext: ['groups' => ['user:read', 'identifier', 'timestamp']],
     denormalizationContext: ['groups' => ['user:write', 'user:update']],
 )]
-#[GetCollection(security: "is_granted('ROLE_DIRECTOR')")]
+#[GetCollection(security: "is_granted('ROLE_AGENT')")]
 #[Get(security: "is_granted('ROLE_ADMIN') or object == user or (object.getAgency() and object.getAgency().getDirector() == user)")]
 #[Post(
     uriTemplate: '/register',
