@@ -36,7 +36,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[UniqueEntity('email', message: 'This email is already used.')]
 #[ApiResource(
     normalizationContext: ['groups' => ['user:read', 'identifier', 'timestamp']],
-    denormalizationContext: ['groups' => ['user:write', 'user:update']],
+    denormalizationContext: ['groups' => ['user:write']],
 )]
 #[GetCollection(security: "is_granted('ROLE_AGENT')")]
 #[Get(security: "is_granted('ROLE_ADMIN') or object == user or (object.getAgency() and object.getAgency().getDirector() == user)")]
@@ -51,6 +51,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     processor: UserPasswordHasher::class,
 )]
 #[Patch(
+    denormalizationContext: ['groups' => ['user:write', 'user:update']],
     security: "is_granted('ROLE_ADMIN') or object == user or (object.getAgency() and object.getAgency().getDirector() == user)",
     processor: UserPasswordHasher::class
 )]
@@ -106,12 +107,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         maxMessage: 'The password cannot be longer than {{ limit }} characters',
     )]
     #[Assert\Regex(
-        pattern: '^(?=(.*[!@#?].*[!@#?]))(?=.*[a-z])(?=.*[A-Z])(?=(.*\d){2,})',
+        pattern: '/^(?=(.*[!@#?].*[!@#?]))(?=.*[a-z])(?=.*[A-Z])(?=(.*\d){2,})/',
         message: 'Non-conforming password.',
         match: true
     )]
     #[Groups(['user:read', 'user:write', 'user:update'])]
     private ?string $plainPassword = null;
+
+    #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Groups('user:update')]
+    private ?string $oldPassword = null;
 
     #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
     #[Assert\NotBlank(message: 'The address should not be blank.', groups: ['user:write'])]
@@ -298,6 +303,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->plainPassword = $plainPassword;
 
         return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getOldPassword(): ?string
+    {
+        return $this->oldPassword;
+    }
+
+    /**
+     * @param string|null $oldPassword
+     */
+    public function setOldPassword(?string $oldPassword): void
+    {
+        $this->oldPassword = $oldPassword;
     }
 
     /**
