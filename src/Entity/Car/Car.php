@@ -136,10 +136,6 @@ class Car
 
     #[ORM\Column(nullable: false)]
     public ?string $filePath = null;
-    public function getContentUrl(): ?string
-    {
-        return $this->filePath ? '/uploads/cars/'.$this->filePath : null;
-    }
 
     public function __construct()
     {
@@ -318,5 +314,10 @@ class Car
         $this->price_per_kilometer = $price_per_kilometer;
 
         return $this;
+    }
+
+    public function getContentUrl(): ?string
+    {
+        return $this->filePath ? '/uploads/cars/'.$this->filePath : null;
     }
 }
