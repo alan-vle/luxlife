@@ -11,6 +11,7 @@ use App\Entity\Rental\Rental;
 use App\Entity\User\User;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 final readonly class CurrentUserExtension implements QueryCollectionExtensionInterface, QueryItemExtensionInterface
 {
@@ -47,11 +48,27 @@ final readonly class CurrentUserExtension implements QueryCollectionExtensionInt
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
         if (Car::class === $resourceClass && (null === $user || $this->security->isGranted('ROLE_CUSTOMER'))) {
-            $queryBuilder->andWhere(sprintf('%s.status != :problem_status', $rootAlias));
-            $queryBuilder->setParameter('problem_status', 3);
+            $queryBuilder
+                ->andWhere(sprintf('%s.status != :problem_status', $rootAlias))
+                ->setParameter('problem_status', 3)
+            ;
         } elseif (Rental::class === $resourceClass && $user instanceof User) {
-            $queryBuilder->andWhere(sprintf('%s.employee = :current_user or %s.customer = :current_user', $rootAlias, $rootAlias));
-            $queryBuilder->setParameter('current_user', $user->getId());
+            $queryBuilder
+                ->andWhere(sprintf('%s.employee = :current_user or %s.customer = :current_user', $rootAlias, $rootAlias))
+                ->setParameter('current_user', $user->getId())
+            ;
+        } elseif (
+            User::class === $resourceClass && $this->security->isGranted('ROLE_DIRECTOR')
+            && $user instanceof UserInterface && method_exists($user, 'getAgency') && null !== $user->getAgency()
+        ) {
+            $queryBuilder
+                ->andWhere(sprintf('%s.agency = :current_user_agency', $rootAlias))
+                ->setParameter('current_user_agency', $user->getAgency())
+            ;
+        } elseif (
+            User::class === $resourceClass && $this->security->isGranted('ROLE_AGENT')
+        ) {
+            $queryBuilder->andWhere(sprintf('%s.agency IS NULL', $rootAlias));
         }
     }
 }

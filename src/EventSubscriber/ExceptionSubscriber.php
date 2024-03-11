@@ -44,6 +44,6 @@ final class ExceptionSubscriber implements EventSubscriberInterface
             $data['message'] = 'dev' !== $this->appEnv ? 'Something is wrong, try again later.' : $exception->getMessage();
         }
 
-        $event->setResponse(new JsonResponse($data));
+        $event->setResponse(new JsonResponse($data, is_int($data['status']) ? $data['status'] : 400));
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Entity\User;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -16,6 +18,7 @@ use App\Entity\Rental\RentalArchived;
 use App\Entity\Review;
 use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
+use App\Filter\UserRoleFilter;
 use App\Repository\User\UserRepository;
 use App\State\UserPasswordHasher;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -27,16 +30,15 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Constraints\PasswordStrength;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`app_user`')]
 #[UniqueEntity('email', message: 'This email is already used.')]
 #[ApiResource(
     normalizationContext: ['groups' => ['user:read', 'identifier', 'timestamp']],
-    denormalizationContext: ['groups' => ['user:write', 'user:update']],
+    denormalizationContext: ['groups' => ['user:write']],
 )]
-#[GetCollection(security: "is_granted('ROLE_ADMIN')")]
+#[GetCollection(security: "is_granted('ROLE_AGENT')")]
 #[Get(security: "is_granted('ROLE_ADMIN') or object == user or (object.getAgency() and object.getAgency().getDirector() == user)")]
 #[Post(
     uriTemplate: '/register',
@@ -49,10 +51,17 @@ use Symfony\Component\Validator\Constraints\PasswordStrength;
     processor: UserPasswordHasher::class,
 )]
 #[Patch(
+    denormalizationContext: ['groups' => ['user:write', 'user:update']],
     security: "is_granted('ROLE_ADMIN') or object == user or (object.getAgency() and object.getAgency().getDirector() == user)",
     processor: UserPasswordHasher::class
 )]
 #[Delete(security: "is_granted('ROLE_ADMIN')")]
+#[ApiFilter(SearchFilter::class, properties: [
+    'fullName' => 'ipartial',
+    'email' => 'ipartial',
+    'agency.city' => 'ipartial',
+])]
+// #[ApiFilter(UserRoleFilter::class)]
 #[ORM\HasLifecycleCallbacks]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -97,11 +106,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         minMessage: 'The password must be at least {{ limit }} characters long',
         maxMessage: 'The password cannot be longer than {{ limit }} characters',
     )]
-    #[Assert\PasswordStrength([
-        'minScore' => PasswordStrength::STRENGTH_MEDIUM, // Strong password required
-    ])]
+    #[Assert\Regex(
+        pattern: '/^(?=(.*[!@#?].*[!@#?]))(?=.*[a-z])(?=.*[A-Z])(?=(.*\d){2,})/',
+        message: 'Non-conforming password.',
+        match: true
+    )]
     #[Groups(['user:read', 'user:write', 'user:update'])]
     private ?string $plainPassword = null;
+
+    #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Groups('user:update')]
+    private ?string $oldPassword = null;
 
     #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
     #[Assert\NotBlank(message: 'The address should not be blank.', groups: ['user:write'])]
@@ -115,7 +130,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 130, nullable: true)]
     private ?string $address = null;
 
-    //    #[Assert\Date]
     #[Assert\NotBlank(message: 'The birth date should not be blank.', groups: ['user:write'])]
     #[Assert\LessThanOrEqual('-18 years', message: 'You should have 18 years old or more.')]
     #[Groups(['user:read', 'user:write'])]
@@ -155,7 +169,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?bool $active = true;
 
     #[ApiProperty(
-        readableLink: false,
+        readableLink: true,
         writableLink: false,
         security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_DIRECTOR') or is_granted('ROLE_AGENT')"
     )]
@@ -217,7 +231,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function setEmail(string $email): static
     {
-        $this->email = $email;
+        $this->email = strtolower($email);
 
         return $this;
     }
@@ -292,6 +306,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
+     * @return string|null
+     */
+    public function getOldPassword(): ?string
+    {
+        return $this->oldPassword;
+    }
+
+    /**
+     * @param string|null $oldPassword
+     */
+    public function setOldPassword(?string $oldPassword): void
+    {
+        $this->oldPassword = $oldPassword;
+    }
+
+    /**
      * @see UserInterface
      */
     public function eraseCredentials(): void
@@ -351,7 +381,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getAgency(): ?Agency
     {
         return $this->agency;
-        //        return $this->agency instanceof Agency ? $this->agency : new Agency();
     }
 
     public function setAgency(?Agency $agency): static

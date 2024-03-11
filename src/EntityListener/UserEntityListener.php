@@ -40,24 +40,22 @@ class UserEntityListener
             return;
         }
 
-        $this->emailVerifierTokenValidator->isAlreadyGenerated($user);
+        $this->emailVerifierTokenValidator->generate($user);
     }
 
     /**
      * @throws TransportExceptionInterface
      */
-    public function preUpdate(User $user, PreUpdateEventArgs $preUpdateEventArgs): void
+    public function preUpdate(User $user, PreUpdateEventArgs $args): void
     {
-        // Get field changed of user entity
-        $entityChangeSet = $preUpdateEventArgs->getEntityChangeSet();
 
-        if (array_key_exists('email', $entityChangeSet)) {
+        if ($args->hasChangedField('email')) {
             // if email has changed, set verified email to false before updating
             // To let regeneration of email token after updating
             if ($user->isVerifiedEmail()) {
                 $user->setVerifiedEmail(false);
             }
-        } elseif (array_key_exists('roles', $entityChangeSet)) {
+        } elseif ($args->hasChangedField('roles')) {
             $this->userUtils->updateRoleAccordingToCase($user);
         }
     }

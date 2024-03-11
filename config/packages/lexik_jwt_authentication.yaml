@@ -8,6 +8,8 @@ lexik_jwt_authentication:
         username_path: email
         password_path: password
 
+    token_ttl: 7200
+
 when@dev:
     lexik_jwt_authentication:
         token_ttl: 86400

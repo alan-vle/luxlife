@@ -27,7 +27,7 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
      */
     public function load(ObjectManager $manager): void
     {
-        $agencyOfMarseille = $this->getReference(AgencyFixtures::AGENCY_MARSEILLE_REFERENCE);
+        $agencyOfMarseille = $this->getReference(AgencyFixtures::AGENCY_MARSEILLE_REF);
 
         if (!$agencyOfMarseille instanceof Agency) {
             throw new \Exception("La référence n'est pas une instance de App\Entity\Agency.");
@@ -121,6 +121,7 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
                 'email' => 'jhhony-punisher@luxlife.com',
                 'password' => 'azs!aAAz4a1s24e1sa',
                 'address' => 'Sans adresse.',
+                'agency' => $agencyOfMarseille,
                 'birth_date' => '1998/02/15',
                 'roles' => ['ADMIN'],
                 'ref' => self::ADMIN_REF,
@@ -128,7 +129,7 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
             [ // Director
                 'first_name' => 'Bruce',
                 'last_name' => 'Douglas',
-                'email' => 'bruce-douglas@marseille.luxlife.com',
+                'email' => 'bruce.douglas@marseille.luxlife.com',
                 'password' => 'eAzZ?ez21d!zezda',
                 'address' => $agencyOfMarseille->getAddress(),
                 'birth_date' => '1987/08/24',
@@ -139,7 +140,7 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
             [ // Agent
                 'first_name' => 'Louise',
                 'last_name' => 'Hersine',
-                'email' => 'louise-hersine@luxlife.com',
+                'email' => 'louise.hersine@luxlife.com',
                 'password' => 'ez4d0d21zer!zdzedzaerr?AA',
                 'address' => $agencyOfMarseille->getAddress(),
                 'birth_date' => '1997/06/14',
@@ -150,7 +151,7 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
             [ // Customer
                 'first_name' => 'Lucas',
                 'last_name' => 'Jones',
-                'email' => 'lucas-jones@gmail.com',
+                'email' => 'lucas.jones@gmail.com',
                 'password' => 'ezezae&@a?zmAzemM12123',
                 'address' => '2 rue du tiroir, Marseille',
                 'birth_date' => '1975/06/30',

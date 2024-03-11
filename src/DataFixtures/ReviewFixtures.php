@@ -18,7 +18,7 @@ class ReviewFixtures extends Fixture implements DependentFixtureInterface
 
         $review
             ->setCustomer($this->isInstanceOfUser(UserFixtures::CUSTOMER_REF))
-            ->setAgency($this->isInstanceOfAgency(AgencyFixtures::AGENCY_MARSEILLE_REFERENCE))
+            ->setAgency($this->isInstanceOfAgency(AgencyFixtures::AGENCY_MARSEILLE_REF))
             ->setStar('4.5')
             ->setDetails('La meilleure agence de Marseille !')
         ;

@@ -119,6 +119,10 @@ rm-migrations: # If there is migrations, delete migrations
 	@if [ -n "$$(ls migrations)" ]; then \
                     /bin/rm migrations/*; \
     fi
+purge-uploads-docs: # Purge uploads docs
+	@if [ -n "$$(ls public/uploads/cars)" ]; then \
+		/bin/rm public/uploads/cars/*; \
+	fi
 
 entity: # Create an entity
 	@$(SYMFONY) make:entity
@@ -130,8 +134,8 @@ fixtures: # Create a fixtures
 listener: # Create an entity
 	@$(SYMFONY) make:listener
 
-load-data: rm-migrations doctrine-migration doctrine-migrate doctrine-fixtures
-force-load-data: database-drop rm-migrations doctrine-migration doctrine-migrate doctrine-fixtures
+load-data: purge-uploads-docs rm-migrations doctrine-migration doctrine-migrate doctrine-fixtures
+force-load-data: purge-uploads-docs database-drop rm-migrations  doctrine-migration doctrine-migrate doctrine-fixtures
 
 mailer-local-test: # Test local mailer
 	@$(SYMFONY) mailer:test someone@example.com
