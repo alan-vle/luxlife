@@ -41,8 +41,8 @@ jobs:
         run: make cs-fix
       - name: Run load-data (migrate, migration, fixture)
         run: make load-data
-  #      - name: Run PHPUnit
-  #        run: make tests-all env=test
+      - name: Run PHPUnit
+        run: make all-tests
 
   lint:
     name: Docker Lint

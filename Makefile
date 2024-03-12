@@ -10,6 +10,7 @@ DOCKER_COMP = docker compose -f compose.dev.yaml
 # Docker containers
 PHP_CONT = $(DOCKER_COMP) exec php
 CRON_CONT = $(DOCKER_COMP) exec cron
+NGINX_CONT = $(DOCKER_COMP) exec nginx
 
 # Executables
 
@@ -53,6 +54,9 @@ docker-ls: ## Show live logs
 
 docker-php: ## Connect to the PHP FPM container
 	@$(PHP_CONT) sh
+
+docker-nginx: ## Connect to the Nginx container
+	@$(NGINX_CONT) sh
 
 docker-cron: ## Connect to the cron container
 	@$(CRON_CONT) sh
@@ -119,6 +123,15 @@ rm-migrations: # If there is migrations, delete migrations
 	@if [ -n "$$(ls migrations)" ]; then \
                     /bin/rm migrations/*; \
     fi
+
+all-tests:
+	$(SYMFONY) --env=test doctrine:database:drop --force || true
+	$(SYMFONY) --env=test doctrine:database:create -n
+	$(SYMFONY) --env=test doctrine:schema:create -n
+	$(SYMFONY) --env=test doctrine:fixtures:load -n
+	$(PHP_CONT) php bin/phpunit
+	$(SYMFONY) --env=test doctrine:database:drop --force -n
+
 purge-uploads-docs: # Purge uploads docs
 	@if [ -n "$$(ls public/uploads/cars)" ]; then \
 		/bin/rm public/uploads/cars/*; \
