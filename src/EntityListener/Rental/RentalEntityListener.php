@@ -10,7 +10,7 @@ use App\Entity\Rental\Delivery;
 use App\Entity\Rental\Rental;
 use App\Entity\User\User;
 use App\Exception\CustomException;
-use App\Service\Utils\DeliveryUtils;
+use App\Utils\DeliveryUtils;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;

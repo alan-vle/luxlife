@@ -19,13 +19,12 @@ use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
 use App\Entity\User\User;
 use App\Repository\AgencyRepository;
-use App\Service\Utils\EnumUtils;
+use App\Utils\EnumUtils;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -35,6 +34,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     normalizationContext: ['groups' => ['agency:read', 'identifier']],
     denormalizationContext: ['groups' => ['agency:write', 'agency:update']],
+    order: ['id' => 'DESC']
 )]
 #[GetCollection]
 #[Get(
@@ -144,7 +144,7 @@ class Agency
     #[ORM\OneToMany(mappedBy: 'agency', targetEntity: Rental::class)]
     private Collection $archivedRentals; /* @phpstan-ignore-line */
 
-    #[ApiProperty(security: "is_granted('ROLE_ADMIN') or object.getDirector() == user")]
+//    #[ApiProperty(security: "is_granted('ROLE_ADMIN') or object.getDirector() == user")]
     #[Groups(['agency-admin:read', 'agency-director:read'])]
     private ?int $totalRentals = null;
 

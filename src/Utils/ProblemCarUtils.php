@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Utils;
+namespace App\Utils;
 
 use App\Entity\Agency;
 use App\Entity\Car\Car;

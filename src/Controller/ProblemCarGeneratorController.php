@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Service\Utils\ProblemCarUtils;
+use App\Utils\ProblemCarUtils;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;

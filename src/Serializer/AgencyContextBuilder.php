@@ -19,7 +19,7 @@ final class AgencyContextBuilder implements SerializerContextBuilderInterface
     }
 
     /* @phpstan-ignore-next-line */
-    public function createFromRequest(Request $request, bool $normalization, array $extractedAttributes = null): array
+    public function createFromRequest(Request $request, bool $normalization, ?array $extractedAttributes = null): array
     {
         $context = $this->decorated->createFromRequest($request, $normalization, $extractedAttributes);
         $resourceClass = $context['resource_class'] ?? null;

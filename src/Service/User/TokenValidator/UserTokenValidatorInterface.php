@@ -7,9 +7,12 @@ use App\Entity\User\Verifier\EmailVerifierToken;
 use App\Service\Mailer\MailerService;
 use Doctrine\ORM\EntityManagerInterface;
 
-interface UserVerifierTokenValidatorInterface
+interface UserTokenValidatorInterface
 {
     public function __construct(EntityManagerInterface $em, MailerService $confirmEmailService);
+
+
+    public function generate(User $user): void;
 
     /**
      * Check if user token entity (VerifierEmailToken, VerifierPhoneNumberToken) has already created.

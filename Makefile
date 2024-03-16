@@ -11,9 +11,9 @@ DOCKER_COMP = docker compose -f compose.dev.yaml
 PHP_CONT = $(DOCKER_COMP) exec php
 CRON_CONT = $(DOCKER_COMP) exec cron
 NGINX_CONT = $(DOCKER_COMP) exec nginx
+POSTGRESQL_CONT = $(DOCKER_COMP) exec database
 
 # Executables
-
 PHP      = $(PHP_CONT) php
 COMPOSER = $(PHP_CONT) composer
 SYMFONY  = $(PHP_CONT) bin/console
@@ -57,6 +57,9 @@ docker-php: ## Connect to the PHP FPM container
 
 docker-nginx: ## Connect to the Nginx container
 	@$(NGINX_CONT) sh
+
+docker-postgresql: ## Connect to the Nginx container
+	@$(POSTGRESQL_CONT) sh
 
 docker-cron: ## Connect to the cron container
 	@$(CRON_CONT) sh
@@ -102,7 +105,18 @@ lint:
 analyze: lint stan cs-fix #infection ## Run all analysis tools
 
 database-drop:
-	@APP_ENV=$(env) $(SYMFONY) doctrine:schema:drop --force --full-database $q
+	@APP_ENV=$(env) $(SYMFONY) doctrine:database:drop --force -n
+database-dump:
+	@sudo mkdir -p "$(c)/$(shell date +'%Y-%m-%d')"
+	@sudo chmod -R 777 "$(c)/$(shell date +'%Y-%m-%d')"
+	@sudo docker exec -i luxlife_dev_postgres /bin/bash -c "pg_dump --username ad_luxlife luxlife" > "$(c)/$(shell date +'%Y-%m-%d')/backup.sql"
+	@echo 'Backup created in $(c)/$(shell date +'%Y-%m-%d')/backup.sql.'
+
+database-restore:
+	@make database-drop
+	@APP_ENV=$(env) $(SYMFONY) doctrine:database:create
+	@sudo docker exec -d -i luxlife_dev_postgres /bin/bash -c "psql --username ad_luxlife luxlife" < $(c)
+	@echo 'Backup $(c) restored.'
 
 doctrine-migration:
 	@APP_ENV=$(env) $(SYMFONY) make:migration -n $q
@@ -121,7 +135,7 @@ doctrine-apply-migration: doctrine-reset doctrine-migration doctrine-reset  ## A
 
 rm-migrations: # If there is migrations, delete migrations
 	@if [ -n "$$(ls migrations)" ]; then \
-                    /bin/rm migrations/*; \
+		/bin/rm migrations/*; \
     fi
 
 all-tests:
@@ -148,7 +162,15 @@ listener: # Create an entity
 	@$(SYMFONY) make:listener
 
 load-data: purge-uploads-docs rm-migrations doctrine-migration doctrine-migrate doctrine-fixtures
-force-load-data: purge-uploads-docs database-drop rm-migrations  doctrine-migration doctrine-migrate doctrine-fixtures
+force-load-data:
+	@make purge-uploads-docs
+	@make database-drop
+	@$(SYMFONY) doctrine:database:create
+	@APP_ENV=$(env) $(SYMFONY) doctrine:schema:update --force
+	@make rm-migrations
+	@make doctrine-migration
+	@make doctrine-migrate
+	@make doctrine-fixtures
 
 mailer-local-test: # Test local mailer
 	@$(SYMFONY) mailer:test someone@example.com

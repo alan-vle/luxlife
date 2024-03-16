@@ -1,16 +1,31 @@
 <?php
 
-namespace App\Service\User;
+namespace App\Utils;
 
 use App\Entity\User\User;
+use App\Repository\User\UserRepository;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
 class UserUtils
 {
     public function __construct(
-        private readonly Security $security
+        private readonly Security $security,
+        private readonly UserRepository $userRepository,
     ) {
+    }
+
+    public function customerIdGenerator(): ?int
+    {
+        $randomCustomerId = rand(100000, 999999);
+
+        $customerIdAlreadyUsed = $this->userRepository->findBy(['customerId' => $randomCustomerId]);
+
+        if ($customerIdAlreadyUsed) {
+            return $this->customerIdGenerator();
+        } else {
+            return $randomCustomerId;
+        }
     }
 
     /**

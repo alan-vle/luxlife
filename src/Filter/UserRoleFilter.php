@@ -8,7 +8,6 @@ use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
 use Doctrine\ORM\QueryBuilder;
-use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\PropertyInfo\Type;
 
 final class UserRoleFilter extends AbstractFilter
@@ -16,7 +15,7 @@ final class UserRoleFilter extends AbstractFilter
     /**
      * @param array<string> $context
      */
-    protected function filterProperty(string $property, mixed $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, Operation $operation = null, array $context = []): void
+    protected function filterProperty(string $property, mixed $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, ?Operation $operation = null, array $context = []): void
     {
         if ('role' !== $property && !is_string($value)) {
             return;
@@ -26,7 +25,7 @@ final class UserRoleFilter extends AbstractFilter
         $parameterName = $queryNameGenerator->generateParameterName('role');
 
         $queryBuilder
-            ->andWhere(sprintf(":role MEMBER OF %s.roles", $alias))
+            ->andWhere(sprintf(':role MEMBER OF %s.roles', $alias))
             ->setParameter('role', $value)
         ;
     }
