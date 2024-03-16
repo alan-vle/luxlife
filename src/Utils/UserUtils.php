@@ -33,8 +33,8 @@ class UserUtils
      */
     public function defineRoleAccordingToCase(User $user): void
     {
-        // User not logged === new customer
-        if (!$this->security->getUser()) {
+        // User not logged === new customer || Used logged as agent so its for a new customer
+        if (!$this->security->getUser() || (!$this->security->isGranted('ROLE_ADMIN') && $this->security->isGranted('ROLE_AGENT'))) {
             $user->setRoles(['customer']);
         } elseif ($this->security->isGranted('ROLE_ADMIN')) { // User logged as admin, return; bc he can do anything
             return;

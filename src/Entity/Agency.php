@@ -144,8 +144,8 @@ class Agency
     #[ORM\OneToMany(mappedBy: 'agency', targetEntity: Rental::class)]
     private Collection $archivedRentals; /* @phpstan-ignore-line */
 
-//    #[ApiProperty(security: "is_granted('ROLE_ADMIN') or object.getDirector() == user")]
-    #[Groups(['agency-admin:read', 'agency-director:read'])]
+    #[ApiProperty(security: "is_granted('ROLE_ADMIN') or object.getDirector() == user")]
+    #[Groups(['admin:read', 'director:read'])]
     private ?int $totalRentals = null;
 
     public function __construct()

@@ -8,6 +8,7 @@ use App\Utils\UserUtils;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 #[AsEntityListener(event: Events::prePersist, method: 'prePersist', entity: User::class)]
@@ -18,7 +19,7 @@ class UserEntityListener
 {
     public function __construct(
         private readonly UserEmailTokenValidator $emailTokenValidator,
-        private readonly UserUtils $userUtils
+        private readonly UserUtils $userUtils,
     ) {
     }
 

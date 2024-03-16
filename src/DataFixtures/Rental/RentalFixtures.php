@@ -59,11 +59,7 @@ class RentalFixtures extends Fixture implements DependentFixtureInterface
                 $car = $rental->getCar();
 
                 if ($car instanceof Car) {
-                    $carKilometers = $car->getKilometers();
-
-                    if (!is_int($carKilometers)) {
-                        throw new \Exception();
-                    }
+                    $carKilometers = (int) $car->getKilometers();
 
                     $adjustedKilometers = $carKilometers + $rental->getUsedKilometers();
 
