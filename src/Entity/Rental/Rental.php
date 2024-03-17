@@ -50,7 +50,11 @@ use Symfony\Component\Validator\Constraints as Assert;
     '(object.getEmployee() and object.getEmployee().getAgency() and object.getEmployee().getAgency().getDirector() == user)',
 )]
 #[Delete(security: "is_granted('ROLE_ADMIN')")]
-#[ApiFilter(SearchFilter::class, properties: ['agency' => 'exact', 'car' => 'exact', 'status' => 'exact'])]
+#[ApiFilter(SearchFilter::class, properties: [
+    'agency' => 'exact',
+    'car' => 'exact',
+    'status' => 'exact',
+])]
 #[ORM\HasLifecycleCallbacks]
 class Rental extends AbstractRental
 {
@@ -102,7 +106,7 @@ class Rental extends AbstractRental
     }
 
     #[ORM\PrePersist, ORM\PreUpdate]
-    public function computePrice(PrePersistEventArgs|PreUpdateEventArgs|string $price = null): ?static
+    public function computePrice(PrePersistEventArgs|PreUpdateEventArgs|string|null $price = null): ?static
     {
         if (is_string($price)) {
             $this->price = $price;

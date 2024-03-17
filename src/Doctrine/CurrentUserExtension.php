@@ -55,8 +55,8 @@ final readonly class CurrentUserExtension implements QueryCollectionExtensionInt
 
         if (Car::class === $resourceClass && (null === $user || $this->security->isGranted('ROLE_CUSTOMER'))) {
             $queryBuilder
-                ->andWhere(sprintf('%s.status != :problem_status', $rootAlias))
-                ->setParameter('problem_status', 3)
+                ->andWhere(sprintf('%s.status = :available_status', $rootAlias))
+                ->setParameter('available_status', 2)
             ;
         } elseif (Rental::class === $resourceClass && $user instanceof User) {
             $queryBuilder

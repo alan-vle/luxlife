@@ -123,7 +123,7 @@ class Car
     #[ORM\OneToMany(mappedBy: 'car', targetEntity: RentalArchived::class)]
     private Collection $rentalsArchived;
 
-    #[Groups(['car:write', 'admin:read', 'director:read'])]
+    #[Groups(['car:read', 'car:write', 'admin:read', 'director:read'])]
     #[ORM\Column(type: Types::DECIMAL, precision: 8, scale: 2)]
     private ?string $pricePerKilometer = null;
 
