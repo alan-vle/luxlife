@@ -28,7 +28,7 @@ final class RentalContextBuilder implements SerializerContextBuilderInterface
             Rental::class === $resourceClass && isset($context['groups'])
             && false === $normalization && $this->authorizationChecker->isGranted('ROLE_AGENT')
         ) {
-            $context['groups'][] = 'rental-agent:write';
+            $context['groups'][] = 'rental-agency:write';
         }
 
         return $context;

@@ -30,6 +30,9 @@ class RentalEntityListener
     ) {
     }
 
+    /**
+     * @throws InternalErrorException
+     */
     public function prePersist(Rental $rental): void
     {
         if ($rental->isFixtures) {
@@ -67,8 +70,10 @@ class RentalEntityListener
 
             return;
         }
-
+        // Set rental status depending on case
         $this->setStatusAccordingToCase($rental);
+
+        // Set car status depending on case
         $this->updateCarStatus($rental->getBrutStatus(), $car);
     }
 
@@ -82,7 +87,10 @@ class RentalEntityListener
             return;
         }
 
+        // Set rental status depending on case
         $this->updateStatusAccordingToCase($rental);
+
+        // Set car status depending on case
         $this->updateCarStatus($rental->getBrutStatus(), $car);
     }
 
@@ -99,6 +107,26 @@ class RentalEntityListener
             $rental->setEmployee($user);
         } else { // Otherwise, it's an online rental.
             $rental->setCustomer($user);
+        }
+    }
+
+    /**
+     * Update car status.
+     * If Rental status is RESERVED so car too.
+     * Else if rental status is RENTED so car too.
+     * Else if rental status is RETURNED so car status will become available.
+     */
+    private function updateCarStatus(?RentalStatusEnum $rentalBrutStatus, ?Car $car): void
+    {
+        if (!$car instanceof Car || !$rentalBrutStatus instanceof RentalStatusEnum) {
+            throw new InternalErrorException();
+        }
+        if (RentalStatusEnum::RESERVED === $rentalBrutStatus) {
+            $car->setStatus(CarStatusEnum::RESERVED);
+        } elseif (RentalStatusEnum::RENTED === $rentalBrutStatus) {
+            $car->setStatus(CarStatusEnum::RENTED);
+        } elseif (RentalStatusEnum::RETURNED === $rentalBrutStatus) {
+            $car->setStatus(CarStatusEnum::AVAILABLE);
         }
     }
 
@@ -143,20 +171,6 @@ class RentalEntityListener
             $newStatus = $rental->getDelivery() ? RentalStatusEnum::DELIVERY : RentalStatusEnum::RESERVED;
 
             $rental->setStatus($newStatus);
-        }
-    }
-
-    private function updateCarStatus(?RentalStatusEnum $rentalBrutStatus, ?Car $car): void
-    {
-        if (!$car instanceof Car || !$rentalBrutStatus instanceof RentalStatusEnum) {
-            throw new InternalErrorException();
-        }
-        if (RentalStatusEnum::RESERVED === $rentalBrutStatus) {
-            $car->setStatus(CarStatusEnum::RESERVED);
-        } elseif (RentalStatusEnum::RENTED === $rentalBrutStatus) {
-            $car->setStatus(CarStatusEnum::RENTED);
-        } elseif (RentalStatusEnum::RETURNED === $rentalBrutStatus) {
-            $car->setStatus(CarStatusEnum::AVAILABLE);
         }
     }
 }

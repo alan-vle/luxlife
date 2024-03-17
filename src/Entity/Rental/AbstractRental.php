@@ -56,7 +56,7 @@ abstract class AbstractRental implements RentalInterface
     protected ?string $price = null;
 
     #[Groups(['rental:read', 'rental-agency:write'])]
-    #[ORM\Column(type: types::SMALLINT, enumType: RentalStatusEnum::class)]
+    #[ORM\Column(type: Types::SMALLINT, enumType: RentalStatusEnum::class)]
     protected ?RentalStatusEnum $status = null;
 
     /**
@@ -144,7 +144,7 @@ abstract class AbstractRental implements RentalInterface
         return $this;
     }
 
-    public function setPrice(string $price = null): ?static
+    public function setPrice(?string $price = null): ?static
     {
         $this->price = $price;
 
