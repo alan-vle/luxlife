@@ -77,10 +77,27 @@ class RentalEntityListener
         $this->updateCarStatus($rental->getBrutStatus(), $car);
     }
 
+    /**
+     * @throws InternalErrorException
+     */
     public function preUpdate(Rental $rental, PreUpdateEventArgs $args): void
     {
         $car = $rental->getCar();
+        dd('eea');
+        // Status of rental is draft and logged user is a customer
+        if (RentalStatusEnum::DRAFT === $rental->getBrutStatus() && $this->security->isGranted('ROLE_CUSTOMER')) {
+            if ($rental->getFromDate() === new \DateTime()) {
+                $rental->setStatus(RentalStatusEnum::RENTED);
+                $car->setStatus(CarStatusEnum::RENTED);
 
+                return;
+            }
+
+            $rental->setStatus(RentalStatusEnum::RESERVED);
+            $car->setStatus(CarStatusEnum::RESERVED);
+
+            return;
+        }
         if ($args->hasChangedField('status') && $this->security->isGranted('ROLE_AGENT')) {
             $this->updateCarStatus($rental->getBrutStatus(), $car);
 
@@ -147,7 +164,7 @@ class RentalEntityListener
     private function updateStatusAccordingToCase(Rental $rental): void
     {
         $car = $rental->getCar() instanceof Car ? $rental->getCar() : throw new InternalErrorException();
-
+        dd('eea');
         if (
             (RentalStatusEnum::RENTED === $rental->getBrutStatus() && null !== $rental->getUsedKilometers())
             || CarStatusEnum::PROBLEM === $car->getBrutStatus()
@@ -167,7 +184,7 @@ class RentalEntityListener
             if ($rental->draftRental) {
                 return;
             }
-
+            dd('eaa');
             $newStatus = $rental->getDelivery() ? RentalStatusEnum::DELIVERY : RentalStatusEnum::RESERVED;
 
             $rental->setStatus($newStatus);

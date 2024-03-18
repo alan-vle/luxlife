@@ -69,7 +69,7 @@ class Agency
     #[Assert\NotBlank(message: 'The address should not be blank.')]
     #[Assert\Regex(pattern: '/^[a-zA-Z0-9\s\-\',]*$/', message: 'The {{ value }} is not a valid address.')]
     #[Assert\Length(max: 130, maxMessage: 'The address cannot be longer than {{ limit }} characters')]
-    #[Groups(['agency:read', 'agency:write'])]
+    #[Groups(['agency:read', 'agency:write', 'rental:read'])]
     #[ORM\Column(length: 130)]
     private ?string $address = null;
 
@@ -77,7 +77,7 @@ class Agency
     #[Assert\NotBlank(message: 'The city should not be blank.')]
     #[Assert\Regex(pattern: '/^[a-zA-Z0-9\s\-\',]*$/', message: 'The {{ value }} is not a valid city.')]
     #[Assert\Length(max: 50, maxMessage: 'The address cannot be longer than {{ limit }} characters')]
-    #[Groups(['agency:read', 'agency:write', 'user:read', 'car:read'])]
+    #[Groups(['agency:read', 'agency:write', 'user:read', 'car:read', 'rental:read'])]
     #[ORM\Column(length: 50)]
     private ?string $city = null;
 

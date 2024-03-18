@@ -37,6 +37,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     normalizationContext: ['groups' => ['user:read', 'identifier', 'timestamp']],
     denormalizationContext: ['groups' => ['user:write']],
+    order: ['id' => 'DESC']
 )]
 #[GetCollection(security: "is_granted('ROLE_AGENT')")]
 #[Get(security: "is_granted('ROLE_ADMIN') or object == user or (object.getAgency() and object.getAgency().getDirector() == user)")]

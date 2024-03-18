@@ -30,6 +30,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     normalizationContext: ['groups' => ['rental:read', 'identifier', 'timestamp']],
     denormalizationContext: ['groups' => ['rental:write']],
+    order: ['id' => 'DESC'],
     security: "is_granted('ROLE_USER')"
 )]
 #[GetCollection]
@@ -66,7 +67,7 @@ class Rental extends AbstractRental
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     private ?int $id = null;
 
-    #[ApiProperty(readableLink: false, writableLink: false)]
+    #[ApiProperty(readableLink: true, writableLink: false)]
     #[Groups(['rental:read'])]
     #[ORM\ManyToOne(inversedBy: 'rentals')]
     #[ORM\JoinColumn(nullable: false)]

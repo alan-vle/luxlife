@@ -2,6 +2,7 @@
 
 namespace App\Service\SignedUrl;
 
+use Spatie\UrlSigner\Exceptions\InvalidSignatureKey;
 use Spatie\UrlSigner\Sha256UrlSigner;
 use Symfony\Component\Uid\Uuid;
 
@@ -22,6 +23,10 @@ class UrlSignedCreator
         //        return self::$urlSigner->sign($url, $expiration);
     }
 
+    /**
+     * @throws InvalidSignatureKey
+     * @throws \Exception
+     */
     public static function getSignedUrlBySpatieBundle(string $url, \DateTime|string $expirationDate, Uuid|string|null $secretKey): string
     {
         if (!$expirationDate instanceof \DateTime) {
