@@ -29,7 +29,7 @@ final class ExceptionSubscriber implements EventSubscriberInterface
     public function onKernelException(ExceptionEvent $event): void
     {
         $exception = $event->getThrowable();
-
+        dd($exception);
         if ($exception instanceof CustomException) {
             $data['status'] = $exception->getStatusCode();
             $data['message'] = $exception->getMessage();

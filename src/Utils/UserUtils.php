@@ -29,7 +29,7 @@ class UserUtils
     }
 
     /**
-     * Check roles submitted by the user (only admin or director but for security).
+     * Check the roles submitted by the user (only the administrator or director can choose a role).
      */
     public function defineRoleAccordingToCase(User $user): void
     {

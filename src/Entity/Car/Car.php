@@ -77,7 +77,7 @@ class Car
     #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
     #[Assert\NotBlank(message: 'The model should not be blank.')]
     #[Assert\Length(max: 50, maxMessage: 'The model cannot be longer than {{ limit }} characters')]
-    #[Groups(['car:read', 'car:write'])]
+    #[Groups(['car:read', 'car:write', 'rental:read'])]
     #[ORM\Column(length: 50)]
     private ?string $model = null;
 
@@ -94,13 +94,13 @@ class Car
     private ?CarStatusEnum $status = null;
 
     #[ApiProperty(readableLink: true, writableLink: false)]
-    #[Groups(['car:read', 'car:write'])]
+    #[Groups(['car:read', 'car:write', 'rental:read'])]
     #[ORM\ManyToOne(inversedBy: 'cars')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Agency $agency = null;
 
     #[ApiProperty(readableLink: true, writableLink: false)]
-    #[Groups(['car:read', 'car:write'])]
+    #[Groups(['car:read', 'car:write', 'rental:read'])]
     #[ORM\ManyToOne(inversedBy: 'cars')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Manufacturer $manufacturer = null;
@@ -128,7 +128,7 @@ class Car
     private ?string $pricePerKilometer = null;
 
     #[ApiProperty(types: ['https://schema.org/contentUrl'])]
-    #[Groups(['car:read'])]
+    #[Groups(['car:read', 'rental:read'])]
     public ?string $contentUrl = null;
 
     #[Vich\UploadableField(mapping: 'car_mapper', fileNameProperty: 'filePath')]

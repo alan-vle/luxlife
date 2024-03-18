@@ -83,7 +83,7 @@ class Rental extends AbstractRental
     #[ORM\ManyToOne(inversedBy: 'myManagedRentals')]
     protected ?User $employee = null;
 
-    #[ApiProperty(readableLink: false, writableLink: false)]
+    #[ApiProperty(readableLink: true, writableLink: false)]
     #[Groups(['rental:read', 'rental:write'])]
     #[ORM\ManyToOne(inversedBy: 'rentals')]
     #[ORM\JoinColumn(nullable: false)]
