@@ -7,7 +7,7 @@ use App\Entity\Agency;
 use App\Entity\Car\Car;
 use App\Entity\Car\Manufacturer;
 use App\Entity\Enum\Car\CarStatusEnum;
-use App\Service\Utils\ImageUploader;
+use App\Utils\ImageUploader;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;

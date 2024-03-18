@@ -4,7 +4,7 @@ namespace App\EventSubscriber;
 
 use ApiPlatform\Symfony\Validator\Exception\ValidationException;
 use App\Exception\CustomException;
-use App\Service\Utils\HttpUtils;
+use App\Utils\HttpUtils;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -29,7 +29,7 @@ final class ExceptionSubscriber implements EventSubscriberInterface
     public function onKernelException(ExceptionEvent $event): void
     {
         $exception = $event->getThrowable();
-
+        dd($exception);
         if ($exception instanceof CustomException) {
             $data['status'] = $exception->getStatusCode();
             $data['message'] = $exception->getMessage();

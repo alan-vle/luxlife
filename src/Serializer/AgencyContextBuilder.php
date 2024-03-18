@@ -19,15 +19,15 @@ final class AgencyContextBuilder implements SerializerContextBuilderInterface
     }
 
     /* @phpstan-ignore-next-line */
-    public function createFromRequest(Request $request, bool $normalization, array $extractedAttributes = null): array
+    public function createFromRequest(Request $request, bool $normalization, ?array $extractedAttributes = null): array
     {
         $context = $this->decorated->createFromRequest($request, $normalization, $extractedAttributes);
         $resourceClass = $context['resource_class'] ?? null;
 
         if (Agency::class === $resourceClass && isset($context['groups']) && true === $normalization) {
             if ($this->authorizationChecker->isGranted('ROLE_ADMIN') || $this->authorizationChecker->isGranted('ROLE_DIRECTOR')) {
-                $context['groups'][] = 'agency-admin:read';
-                $context['groups'][] = 'agency-director:read';
+                $context['groups'][] = 'admin:read';
+                $context['groups'][] = 'director:read';
                 $context['groups'][] = 'timestamp';
             }
         }

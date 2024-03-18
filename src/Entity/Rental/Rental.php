@@ -30,6 +30,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     normalizationContext: ['groups' => ['rental:read', 'identifier', 'timestamp']],
     denormalizationContext: ['groups' => ['rental:write']],
+    order: ['id' => 'DESC'],
     security: "is_granted('ROLE_USER')"
 )]
 #[GetCollection]
@@ -50,7 +51,11 @@ use Symfony\Component\Validator\Constraints as Assert;
     '(object.getEmployee() and object.getEmployee().getAgency() and object.getEmployee().getAgency().getDirector() == user)',
 )]
 #[Delete(security: "is_granted('ROLE_ADMIN')")]
-#[ApiFilter(SearchFilter::class, properties: ['agency' => 'exact', 'car' => 'exact', 'status' => 'exact'])]
+#[ApiFilter(SearchFilter::class, properties: [
+    'agency' => 'exact',
+    'car' => 'exact',
+    'status' => 'exact',
+])]
 #[ORM\HasLifecycleCallbacks]
 class Rental extends AbstractRental
 {
@@ -62,7 +67,7 @@ class Rental extends AbstractRental
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     private ?int $id = null;
 
-    #[ApiProperty(readableLink: false, writableLink: false)]
+    #[ApiProperty(readableLink: true, writableLink: false)]
     #[Groups(['rental:read'])]
     #[ORM\ManyToOne(inversedBy: 'rentals')]
     #[ORM\JoinColumn(nullable: false)]
@@ -79,7 +84,7 @@ class Rental extends AbstractRental
     #[ORM\ManyToOne(inversedBy: 'myManagedRentals')]
     protected ?User $employee = null;
 
-    #[ApiProperty(readableLink: false, writableLink: false)]
+    #[ApiProperty(readableLink: true, writableLink: false)]
     #[Groups(['rental:read', 'rental:write'])]
     #[ORM\ManyToOne(inversedBy: 'rentals')]
     #[ORM\JoinColumn(nullable: false)]
@@ -102,7 +107,7 @@ class Rental extends AbstractRental
     }
 
     #[ORM\PrePersist, ORM\PreUpdate]
-    public function computePrice(PrePersistEventArgs|PreUpdateEventArgs|string $price = null): ?static
+    public function computePrice(PrePersistEventArgs|PreUpdateEventArgs|string|null $price = null): ?static
     {
         if (is_string($price)) {
             $this->price = $price;

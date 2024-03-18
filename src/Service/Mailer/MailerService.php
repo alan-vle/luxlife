@@ -6,6 +6,7 @@ use App\Entity\User\User;
 use App\Entity\User\Verifier\EmailVerifierToken;
 use App\Service\SignedUrl\UrlSignedCreator;
 use Doctrine\ORM\EntityManagerInterface;
+use Spatie\UrlSigner\Exceptions\InvalidSignatureKey;
 use Symfony\Bridge\Twig\Mime\NotificationEmail;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
@@ -24,24 +25,14 @@ class MailerService
 
     /**
      * @throws TransportExceptionInterface
+     * @throws InvalidSignatureKey
      */
     public function sendConfirmationEmail(User $user): void
     {
         $userEmail = $user->getEmail() ?: '';
-        $emailVerifierToken = new EmailVerifierToken();
-
         $expirationDate = (new \DateTime('now'))->add(new \DateInterval('P1D'));
-        // Set new email verifier token with user and email
-        $emailVerifierToken
-            ->setUser($user)
-            ->setEmail($userEmail)
-            ->setExpiresAt($expirationDate->format('Y-m-d H:i'))
-        ;
-
-        $this->em->persist($emailVerifierToken);
-        $this->em->flush();
-
-        $url = $this->apiUrl.'/confirm-email/'.$emailVerifierToken->getUuid();
+        $emailVerifierToken = $this->createUserToken($user, $userEmail, $expirationDate); // Create token
+        $url = sprintf('%s/confirm-email/%s', $this->apiUrl, $emailVerifierToken->getUuid()); // Create the url
 
         // Create a signed url for allow access to confirm email controller
         $signedUrl = UrlSignedCreator::getSignedUrlBySpatieBundle($url, $expirationDate, $emailVerifierToken->getUuid());
@@ -61,8 +52,26 @@ class MailerService
         $this->sendEmail($emailParams);
     }
 
+    private function createUserToken(User $user, string $userEmail, \DateTime $expirationDate): EmailVerifierToken
+    {
+        $emailVerifierToken = new EmailVerifierToken();
+
+        // Set new email verifier token with user and email
+        $emailVerifierToken
+            ->setUser($user)
+            ->setEmail($userEmail)
+            ->setExpiresAt($expirationDate->format('Y-m-d H:i'))
+        ;
+
+        $this->em->persist($emailVerifierToken);
+        $this->em->flush();
+
+        return $emailVerifierToken;
+    }
+
     /**
      * @param array<string, array<string, \DateTime|string|null>|string> $emailParams
+     * @throws TransportExceptionInterface
      */
     public function sendEmail(array $emailParams): void
     {

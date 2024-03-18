@@ -19,7 +19,7 @@ use App\Entity\Rental\RentalArchived;
 use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
 use App\Repository\Car\CarRepository;
-use App\Service\Utils\EnumUtils;
+use App\Utils\EnumUtils;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -34,6 +34,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 #[ApiResource(
     normalizationContext: ['groups' => ['car:read', 'identifier', 'timestamp']],
     denormalizationContext: ['groups' => ['car:write', 'car:update']],
+    order: ['id' => 'DESC']
 )]
 #[GetCollection]
 #[Get(
@@ -43,15 +44,15 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
     inputFormats: ['multipart' => ['multipart/form-data']],
     security: "is_granted('ROLE_DIRECTOR')",
     securityPostDenormalize: "is_granted('ROLE_ADMIN') or object.getAgency().getDirector() == user",
-    validationContext: ['groups' => ['Default', 'car:write']]
+    validationContext: ['groups' => ['Default', 'car:write']],
 )]
 #[Put(
     security: "is_granted('ROLE_ADMIN')",
-    securityPostDenormalize: "is_granted('ROLE_ADMIN')"
+    securityPostDenormalize: "is_granted('ROLE_ADMIN')",
 )]
 #[Patch(
     security: "is_granted('ROLE_ADMIN') or object.getAgency().getDirector() == user",
-    securityPostDenormalize: "is_granted('ROLE_ADMIN') or object.getAgency().getDirector() == user"
+    securityPostDenormalize: "is_granted('ROLE_ADMIN') or object.getAgency().getDirector() == user",
 )]
 #[Delete(security: "is_granted('ROLE_ADMIN')")]
 #[ApiFilter(SearchFilter::class, properties: [
@@ -76,15 +77,15 @@ class Car
     #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
     #[Assert\NotBlank(message: 'The model should not be blank.')]
     #[Assert\Length(max: 50, maxMessage: 'The model cannot be longer than {{ limit }} characters')]
-    #[Groups(['car:read', 'car:write'])]
+    #[Groups(['car:read', 'car:write', 'rental:read'])]
     #[ORM\Column(length: 50)]
     private ?string $model = null;
 
-    #[Assert\Type(type: 'integer', message: 'The value {{ value }} is not a valid {{ type }}.')]
-    #[Assert\NotNull(message: 'The kilometers should not be blank.')]
+    #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
+    #[Assert\NotBlank(message: 'The kilometers should not be blank.')]
     #[Groups(['car:read', 'car:write'])]
     #[ORM\Column]
-    private ?int $kilometers = 0;
+    private ?string $kilometers = null;
 
     #[Assert\Type(type: 'object', message: 'The value {{ value }} is not a valid {{ type }}.')]
     #[Assert\NotNull]
@@ -93,13 +94,13 @@ class Car
     private ?CarStatusEnum $status = null;
 
     #[ApiProperty(readableLink: true, writableLink: false)]
-    #[Groups(['car:read', 'car:write'])]
+    #[Groups(['car:read', 'car:write', 'rental:read'])]
     #[ORM\ManyToOne(inversedBy: 'cars')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Agency $agency = null;
 
     #[ApiProperty(readableLink: true, writableLink: false)]
-    #[Groups(['car:read', 'car:write'])]
+    #[Groups(['car:read', 'car:write', 'rental:read'])]
     #[ORM\ManyToOne(inversedBy: 'cars')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Manufacturer $manufacturer = null;
@@ -122,16 +123,16 @@ class Car
     #[ORM\OneToMany(mappedBy: 'car', targetEntity: RentalArchived::class)]
     private Collection $rentalsArchived;
 
-    #[Groups(['car:write'])]
+    #[Groups(['car:read', 'car:write', 'admin:read', 'director:read'])]
     #[ORM\Column(type: Types::DECIMAL, precision: 8, scale: 2)]
-    private ?string $price_per_kilometer = null;
+    private ?string $pricePerKilometer = null;
 
     #[ApiProperty(types: ['https://schema.org/contentUrl'])]
-    #[Groups(['car:read'])]
+    #[Groups(['car:read', 'rental:read'])]
     public ?string $contentUrl = null;
 
-    #[Vich\UploadableField(mapping: 'terms_and_conditions_mapper', fileNameProperty: 'filePath')]
-    #[Groups(['terms-and-conditions:write'])]
+    #[Vich\UploadableField(mapping: 'car_mapper', fileNameProperty: 'filePath')]
+    #[Groups(['car:write'])]
     public ?File $file = null;
 
     #[ORM\Column(nullable: false)]
@@ -161,12 +162,12 @@ class Car
         return $this;
     }
 
-    public function getKilometers(): ?int
+    public function getKilometers(): ?string
     {
         return $this->kilometers;
     }
 
-    public function setKilometers(int $kilometers): static
+    public function setKilometers(string $kilometers): static
     {
         $this->kilometers = $kilometers;
 
@@ -306,18 +307,18 @@ class Car
 
     public function getPricePerKilometer(): ?string
     {
-        return $this->price_per_kilometer;
+        return $this->pricePerKilometer;
     }
 
     public function setPricePerKilometer(string $price_per_kilometer): static
     {
-        $this->price_per_kilometer = $price_per_kilometer;
+        $this->pricePerKilometer = $price_per_kilometer;
 
         return $this;
     }
 
     public function getContentUrl(): ?string
     {
-        return $this->filePath ? '/uploads/cars/'.$this->filePath : null;
+        return $this->filePath ? sprintf('/uploads/cars/%s', $this->filePath) : null;
     }
 }

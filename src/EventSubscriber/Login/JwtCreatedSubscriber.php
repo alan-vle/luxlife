@@ -28,6 +28,8 @@ class JwtCreatedSubscriber implements EventSubscriberInterface
 
             if (null !== $user->getAgency()) {
                 $payload['agency']['uuid'] = $user->getAgency()->getUuid();
+            } elseif (null !== $user->getCustomerId()) {
+                $payload['customer_id'] = $user->getCustomerId();
             }
 
             $event->setData($payload);

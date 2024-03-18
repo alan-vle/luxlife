@@ -1,25 +1,40 @@
 <?php
 
-namespace App\Service\User;
+namespace App\Utils;
 
 use App\Entity\User\User;
+use App\Repository\User\UserRepository;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
 class UserUtils
 {
     public function __construct(
-        private readonly Security $security
+        private readonly Security $security,
+        private readonly UserRepository $userRepository,
     ) {
     }
 
+    public function customerIdGenerator(): ?int
+    {
+        $randomCustomerId = rand(100000, 999999);
+
+        $customerIdAlreadyUsed = $this->userRepository->findBy(['customerId' => $randomCustomerId]);
+
+        if ($customerIdAlreadyUsed) {
+            return $this->customerIdGenerator();
+        } else {
+            return $randomCustomerId;
+        }
+    }
+
     /**
-     * Check roles submitted by the user (only admin or director but for security).
+     * Check the roles submitted by the user (only the administrator or director can choose a role).
      */
     public function defineRoleAccordingToCase(User $user): void
     {
-        // User not logged === new customer
-        if (!$this->security->getUser()) {
+        // User not logged === new customer || Used logged as agent so its for a new customer
+        if (!$this->security->getUser() || (!$this->security->isGranted('ROLE_ADMIN') && $this->security->isGranted('ROLE_AGENT'))) {
             $user->setRoles(['customer']);
         } elseif ($this->security->isGranted('ROLE_ADMIN')) { // User logged as admin, return; bc he can do anything
             return;

@@ -37,6 +37,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     normalizationContext: ['groups' => ['user:read', 'identifier', 'timestamp']],
     denormalizationContext: ['groups' => ['user:write']],
+    order: ['id' => 'DESC']
 )]
 #[GetCollection(security: "is_granted('ROLE_AGENT')")]
 #[Get(security: "is_granted('ROLE_ADMIN') or object == user or (object.getAgency() and object.getAgency().getDirector() == user)")]
@@ -58,6 +59,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[Delete(security: "is_granted('ROLE_ADMIN')")]
 #[ApiFilter(SearchFilter::class, properties: [
     'fullName' => 'ipartial',
+    'customerId' => 'exact',
     'email' => 'ipartial',
     'agency.city' => 'ipartial',
 ])]
@@ -95,11 +97,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var ?string The hashed password
      */
     #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?string $password = null;
 
     #[Assert\Type(type: 'string', message: 'The value {{ value }} is not a valid {{ type }}.')]
-    #[Assert\NotBlank(message: 'The password should not be blank.', groups: ['user:write'])]
+    #[Assert\NotBlank(message: 'The password should not be blank.', groups: ['user:update'])]
     #[Assert\Length(
         min: 8,
         max: 100,
@@ -140,7 +142,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var array<string> $roles
      */
     #[Assert\Type(type: 'array', message: 'The value {{ value }} is not a valid {{ type }}.')]
-    #[Groups(['user:read', 'admin:write', 'director:write'])]
+    #[Groups(['user:read', 'admin:write'])]
     #[ORM\Column]
     private array $roles = [];
 
@@ -173,7 +175,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         writableLink: false,
         security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_DIRECTOR') or is_granted('ROLE_AGENT')"
     )]
-    #[Groups(['user:read', 'admin:write', 'director:write'])]
+    #[Groups(['user:read', 'admin:write'])]
     #[ORM\ManyToOne(inversedBy: 'users')]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
     private ?Agency $agency = null;
@@ -209,6 +211,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $rentalsArchivedAsEmployee;
 
     public bool $isFixtures = false;
+
+    #[Groups(['user:read'])]
+    #[ORM\Column(nullable: true, updatable: false)]
+    #[ApiProperty(writable: false)]
+    private ?int $customerId = null;
 
     public function __construct()
     {
@@ -572,6 +579,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $rentalsArchivedAsEmployee->setEmployee(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCustomerId(): ?int
+    {
+        return $this->customerId;
+    }
+
+    public function setCustomerId(?int $customerId): static
+    {
+        $this->customerId = $customerId;
 
         return $this;
     }

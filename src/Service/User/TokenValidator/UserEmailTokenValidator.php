@@ -8,7 +8,7 @@ use App\Service\Mailer\MailerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
-class UserEmailVerifierTokenValidator implements UserVerifierTokenValidatorInterface
+class UserEmailTokenValidator implements UserTokenValidatorInterface
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
@@ -23,7 +23,6 @@ class UserEmailVerifierTokenValidator implements UserVerifierTokenValidatorInter
     {
         $this->confirmEmailService->sendConfirmationEmail($user);
     }
-
 
     /**
      * @throws TransportExceptionInterface

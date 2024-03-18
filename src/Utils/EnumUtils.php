@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Utils;
+namespace App\Utils;
 
 use Symfony\Component\CssSelector\Exception\InternalErrorException;
 

@@ -19,13 +19,12 @@ use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
 use App\Entity\User\User;
 use App\Repository\AgencyRepository;
-use App\Service\Utils\EnumUtils;
+use App\Utils\EnumUtils;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -35,6 +34,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     normalizationContext: ['groups' => ['agency:read', 'identifier']],
     denormalizationContext: ['groups' => ['agency:write', 'agency:update']],
+    order: ['id' => 'DESC']
 )]
 #[GetCollection]
 #[Get(
@@ -69,7 +69,7 @@ class Agency
     #[Assert\NotBlank(message: 'The address should not be blank.')]
     #[Assert\Regex(pattern: '/^[a-zA-Z0-9\s\-\',]*$/', message: 'The {{ value }} is not a valid address.')]
     #[Assert\Length(max: 130, maxMessage: 'The address cannot be longer than {{ limit }} characters')]
-    #[Groups(['agency:read', 'agency:write'])]
+    #[Groups(['agency:read', 'agency:write', 'rental:read'])]
     #[ORM\Column(length: 130)]
     private ?string $address = null;
 
@@ -77,7 +77,7 @@ class Agency
     #[Assert\NotBlank(message: 'The city should not be blank.')]
     #[Assert\Regex(pattern: '/^[a-zA-Z0-9\s\-\',]*$/', message: 'The {{ value }} is not a valid city.')]
     #[Assert\Length(max: 50, maxMessage: 'The address cannot be longer than {{ limit }} characters')]
-    #[Groups(['agency:read', 'agency:write', 'user:read', 'car:read'])]
+    #[Groups(['agency:read', 'agency:write', 'user:read', 'car:read', 'rental:read'])]
     #[ORM\Column(length: 50)]
     private ?string $city = null;
 
@@ -145,7 +145,7 @@ class Agency
     private Collection $archivedRentals; /* @phpstan-ignore-line */
 
     #[ApiProperty(security: "is_granted('ROLE_ADMIN') or object.getDirector() == user")]
-    #[Groups(['agency-admin:read', 'agency-director:read'])]
+    #[Groups(['admin:read', 'director:read'])]
     private ?int $totalRentals = null;
 
     public function __construct()

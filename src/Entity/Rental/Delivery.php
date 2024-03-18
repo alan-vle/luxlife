@@ -11,7 +11,7 @@ use App\Entity\Enum\Rental\DeliveryStatusEnum;
 use App\Entity\Trait\TimeStampTrait;
 use App\Entity\Trait\UuidTrait;
 use App\Repository\Rental\DeliveryRepository;
-use App\Service\Utils\EnumUtils;
+use App\Utils\EnumUtils;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;

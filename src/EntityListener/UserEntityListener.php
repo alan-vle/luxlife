@@ -3,12 +3,12 @@
 namespace App\EntityListener;
 
 use App\Entity\User\User;
-use App\Service\User\TokenValidator\UserEmailVerifierTokenValidator;
-use App\Service\User\UserUtils;
+use App\Service\User\TokenValidator\UserEmailTokenValidator;
+use App\Utils\UserUtils;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
-use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 #[AsEntityListener(event: Events::prePersist, method: 'prePersist', entity: User::class)]
@@ -18,13 +18,19 @@ use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 class UserEntityListener
 {
     public function __construct(
-        private readonly UserEmailVerifierTokenValidator $emailVerifierTokenValidator,
-        private readonly UserUtils $userUtils
+        private readonly UserEmailTokenValidator $emailTokenValidator,
+        private readonly UserUtils $userUtils,
     ) {
     }
 
-    public function prePersist(User $user, PrePersistEventArgs $args): void
+    public function prePersist(User $user): void
     {
+        if (null === $user->getAgency() && !in_array('ROLE_ADMIN', $user->getRoles())) {
+            $randomCustomerId = $this->userUtils->customerIdGenerator();
+
+            $user->setCustomerId($randomCustomerId);
+        }
+
         if ($user->isFixtures) {
             return;
         }
@@ -34,28 +40,30 @@ class UserEntityListener
         $this->userUtils->isAdminOrAgencyDirector($user);
     }
 
+    /**
+     * @throws TransportExceptionInterface
+     */
     public function postPersist(User $user): void
     {
         if ($user->isVerifiedEmail()) {
             return;
         }
 
-        $this->emailVerifierTokenValidator->generate($user);
+        $this->emailTokenValidator->generate($user);
     }
 
-    /**
-     * @throws TransportExceptionInterface
-     */
+
     public function preUpdate(User $user, PreUpdateEventArgs $args): void
     {
-
         if ($args->hasChangedField('email')) {
             // if email has changed, set verified email to false before updating
             // To let regeneration of email token after updating
             if ($user->isVerifiedEmail()) {
                 $user->setVerifiedEmail(false);
             }
-        } elseif ($args->hasChangedField('roles')) {
+        }
+
+        if ($args->hasChangedField('roles')) {
             $this->userUtils->updateRoleAccordingToCase($user);
         }
     }

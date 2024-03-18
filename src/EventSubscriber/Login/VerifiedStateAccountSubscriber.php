@@ -3,7 +3,7 @@
 namespace App\EventSubscriber\Login;
 
 use App\Entity\User\User;
-use App\Service\User\TokenValidator\UserEmailVerifierTokenValidator;
+use App\Service\User\TokenValidator\UserEmailTokenValidator;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,7 +13,7 @@ class VerifiedStateAccountSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly Security $security,
-        private readonly UserEmailVerifierTokenValidator $emailTokenValidator
+        private readonly UserEmailTokenValidator $emailTokenValidator
     ) {
     }
 

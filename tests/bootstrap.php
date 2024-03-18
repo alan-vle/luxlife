@@ -13,3 +13,6 @@ if (file_exists(dirname(__DIR__).'/config/bootstrap.php')) {
 if ($_SERVER['APP_DEBUG']) {
     umask(0000);
 }
+
+// ensure a fresh cache when debug mode is disabled
+(new Symfony\Component\Filesystem\Filesystem())->remove(__DIR__.'/../var/cache/test');
